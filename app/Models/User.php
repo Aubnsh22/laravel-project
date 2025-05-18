@@ -35,4 +35,5 @@ class User extends Authenticatable
     ];
 
     /*fahd zkika*/
+    /*mohsine byed*/
 }
