@@ -237,6 +237,7 @@
 <body>
 
 <!-- Sidebar -->
+ <h1>salam</h1>
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
