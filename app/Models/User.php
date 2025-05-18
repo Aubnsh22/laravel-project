@@ -34,6 +34,5 @@ class User extends Authenticatable
         'hire_date' => 'date',
     ];
 
-    /*fahd zkika*/
-    /*mohsine byed*/
+    
 }
