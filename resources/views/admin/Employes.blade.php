@@ -325,51 +325,106 @@
     </div>
 
     <div class="employees-section">
-      <h4 class="mb-4">Employee List</h4>
-      <table class="employee-table">
+    <h4 class="mb-4">Employee List</h4>
+    <table class="employee-table">
         <thead>
-          <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Department</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>John Doe</td>
-            <td>Developer</td>
-            <td>IT</td>
-            <td><span class="badge bg-success">Active</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-light action-btn me-2">Edit</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Remove</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Jane Smith</td>
-            <td>Designer</td>
-            <td>Creative</td>
-            <td><span class="badge bg-warning">On Leave</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-light action-btn me-2">Edit</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Remove</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Mike Johnson</td>
-            <td>Manager</td>
-            <td>Operations</td>
-            <td><span class="badge bg-success">Active</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-light action-btn me-2">Edit</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Remove</button>
-            </td>
-          </tr>
+            @forelse ($employees as $employee)
+                <tr>
+                    <td>{{ $employee->full_name }}</td>
+                    <td>{{ $employee->role }}</td>
+                    <td>{{ $employee->department }}</td>
+                    <td>
+                        <!-- Bouton Edit -->
+                        <button class="btn btn-sm btn-outline-light action-btn me-2" data-bs-toggle="modal" data-bs-target="#editModal{{ $employee->id }}">Edit</button>
+                        <!-- Bouton Remove -->
+                        <form action="{{ route('employee.destroy', $employee->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger action-btn" onclick="return confirm('Are you sure you want to delete this employee?')">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <!-- Modal pour Edit -->
+                <div class="modal fade" id="editModal{{ $employee->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $employee->id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel{{ $employee->id }}">Edit Employee</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('employee.update', $employee->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="full_name{{ $employee->id }}" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="full_name{{ $employee->id }}" name="full_name" value="{{ $employee->full_name }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="username{{ $employee->id }}" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="username{{ $employee->id }}" name="username" value="{{ $employee->username }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email{{ $employee->id }}" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email{{ $employee->id }}" name="email" value="{{ $employee->email }}" required>
+                                    </div>
+                                    <\
+                                    <div class="mb-3">
+                                        <label for="phone_number{{ $employee->id }}" class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" id="phone_number{{ $employee->id }}" name="phone_number" value="{{ $employee->phone_number }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="department{{ $employee->id }}" class="form-label">Department</label>
+                                        <select class="form-control" id="department{{ $employee->id }}" name="department" required>
+                                            <option value="Information Technology" {{ $employee->department == 'Information Technology' ? 'selected' : '' }}>Information Technology</option>
+                                            <option value="Creative" {{ $employee->department == 'Creative' ? 'selected' : '' }}>Creative</option>
+                                            <option value="Operations" {{ $employee->department == 'Operations' ? 'selected' : '' }}>Operations</option>
+                                            <option value="Human Resources" {{ $employee->department == 'Human Resources' ? 'selected' : '' }}>Human Resources</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="role{{ $employee->id }}" class="form-label">Role</label>
+                                        <select class="form-control" id="role{{ $employee->id }}" name="role" required>
+                                            <option value="Employee" {{ $employee->role == 'Employee' ? 'selected' : '' }}>Employee</option>
+                                            <option value="Developer" {{ $employee->role == 'Developer' ? 'selected' : '' }}>Developer</option>
+                                            <option value="Designer" {{ $employee->role == 'Designer' ? 'selected' : '' }}>Designer</option>
+                                            <option value="Manager" {{ $employee->role == 'Manager' ? 'selected' : '' }}>Manager</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="hire_date{{ $employee->id }}" class="form-label">Hire Date</label>
+                                        <input type="date" class="form-control" id="hire_date{{ $employee->id }}" name="hire_date" value="{{ $employee->hire_date }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="work_location{{ $employee->id }}" class="form-label">Work Location</label>
+                                        <input type="text" class="form-control" id="work_location{{ $employee->id }}" name="work_location" value="{{ $employee->work_location }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <tr>
+                    <td colspan="4">No employees found.</td>
+                </tr>
+            @endforelse
         </tbody>
-      </table>
-    </div>
+    </table>
+</div>
   </div>
 </div>
 
