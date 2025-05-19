@@ -50,9 +50,9 @@ Route::get('/employees',[AdminController::class,'employes']);
 Route::get('/tasks',[AdminController::class,'Tasks'])->name('admin.tasks');
 Route::get('/requests',[AdminController::class,'Request']);
 Route::get('/statistics',[AdminController::class,'Stats']);
-Route::get('/settingss',[AdminController::class,'setting']);
+Route::get('/settings',[AdminController::class,'setting']);
 Route::get('/myaccountt',[AdminController::class,'adminacc']);
-
+Route::get('/message',[AdminController::class,'msg']);
 
 
 Route::post('/employees', [AuthentificationController::class, 'store'])->name('employee.store');

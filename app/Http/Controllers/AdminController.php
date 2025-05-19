@@ -10,7 +10,7 @@ class AdminController extends Controller
         return view('admin/signin');
     }
       public function dashboard(){ 
-        return view('admin/Employes');
+        return view('admin/dashboard');
     }
        public function employes(){ 
         return view('admin/Employes');

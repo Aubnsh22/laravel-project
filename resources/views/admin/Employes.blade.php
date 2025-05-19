@@ -276,7 +276,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('requests') }}" class="nav-link">
+        <a href="{{ url('message') }}" class="nav-link">
           <i class="fas fa-envelope"></i> Message
         </a>
       </li>

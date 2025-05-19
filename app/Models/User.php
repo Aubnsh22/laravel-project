@@ -34,5 +34,10 @@ class User extends Authenticatable
         'hire_date' => 'date',
     ];
 
-    
+public function attendances()
+{
+    return $this->hasMany(Attendance::class);
 }
+
+}
+
