@@ -56,14 +56,25 @@ class AuthentificationController extends Controller
                 $exists = User::where('employee_id', $employeeId)->exists();
             } while ($exists);
 
+            // Générer un mot de passe en clair
+            $plainPassword = Str::random(12);
             $validatedData['employee_id'] = $employeeId;
-            $validatedData['password'] = Hash::make(Str::random(12));
+            $validatedData['password'] = Hash::make($plainPassword);
 
-            User::create($validatedData);
+            // Créer l'employé
+            $user = User::create($validatedData);
 
-            return redirect()->route('admin.employees')->with('success', 'Employee added successfully.');
+            // Envoyer l'email avec les informations de connexion
+            try {
+                Mail::to($validatedData['email'])->send(new WelcomeEmployee($validatedData, $plainPassword));
+            } catch (\Exception $e) {
+                Log::error('Failed to send welcome email to ' . $validatedData['email'] . ': ' . $e->getMessage());
+                // Continuer malgré l'erreur d'envoi d'email
+            }
+
+            return redirect()->route('admin.Employes')->with('success', 'Employee added successfully.');
         } catch (\Exception $e) {
-            \Log::error('Failed to create employee: ' . $e->getMessage());
+            Log::error('Failed to create employee: ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Failed to add employee: ' . $e->getMessage()]);
         }
     }
@@ -79,10 +90,10 @@ class AuthentificationController extends Controller
         try {
             $employee = User::findOrFail($id);
             $employee->delete();
-            return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully.');
+            return redirect()->route('admin.Employes')->with('success', 'Employee deleted successfully.');
         } catch (\Exception $e) {
-            \Log::error('Failed to delete employee: ' . $e->getMessage());
-            return redirect()->route('admin.employees')->with('error', 'Failed to delete employee.');
+            Log::error('Failed to delete employee: ' . $e->getMessage());
+            return redirect()->route('admin.Employes')->with('error', 'Failed to delete employee.');
         }
     }
 
@@ -104,10 +115,10 @@ class AuthentificationController extends Controller
 
             $employee->update($validatedData);
 
-            return redirect()->route('admin.employees')->with('success', 'Employee updated successfully.');
+            return redirect()->route('admin.Employes')->with('success', 'Employee updated successfully.');
         } catch (\Exception $e) {
-            \Log::error('Failed to update employee: ' . $e->getMessage());
-            return redirect()->route('admin.employees')->with('error', 'Failed to update employee: ' . $e->getMessage());
+            Log::error('Failed to update employee: ' . $e->getMessage());
+            return redirect()->route('admin.Employes')->with('error', 'Failed to update employee: ' . $e->getMessage());
         }
     }
 }
