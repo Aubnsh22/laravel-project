@@ -29,7 +29,6 @@
       color: white;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -73,14 +72,12 @@
       margin-right: 10px;
     }
 
-    /* Main Content */
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-    /* User Card */
     .user-card-container {
       grid-column: 3;
       width: 280px;
@@ -95,7 +92,6 @@
       top: 30px;
     }
 
-    /* Employees Section */
     .employees-container {
       max-width: 800px;
       margin: 0 auto;
@@ -144,7 +140,6 @@
       border-radius: 5px;
     }
 
-    /* Date & Time Boxes */
     .date-box {
       background: var(--gold-gradient);
       padding: 10px;
@@ -168,7 +163,6 @@
       color: black;
     }
 
-    /* Search & Notification */
     .search-bar input {
       background: rgba(255, 255, 255, 0.1);
       border: none;
@@ -206,7 +200,6 @@
       border-radius: 50%;
     }
 
-    /* Modal Styles */
     .modal-content {
       background: rgba(0, 0, 0, 0.9);
       color: white;
@@ -240,15 +233,13 @@
   </style>
 </head>
 <body>
-
 <!-- Sidebar -->
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
-
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
         <a href="{{ url('dashboard') }}" class="nav-link">
@@ -287,7 +278,6 @@
       </li>
     </ul>
   </div>
-
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
@@ -317,13 +307,11 @@
         </button>
       </div>
     </div>
-
     <div class="hero-section">
       <h1 class="fw-bold mb-3">Employee Management<br>Overview</h1>
       <button class="btn btn-dark fw-semibold me-3" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Add Employee</button>
       <button class="btn btn-outline-dark fw-semibold">Export Data</button>
     </div>
-
     <div class="employees-section">
       <h4 class="mb-4">Employee List</h4>
       <table class="employee-table">
@@ -332,49 +320,112 @@
             <th>Name</th>
             <th>Role</th>
             <th>Department</th>
-            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>John Doe</td>
-            <td>Developer</td>
-            <td>IT</td>
-            <td><span class="badge bg-success">Active</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-light action-btn me-2">Edit</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Remove</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Jane Smith</td>
-            <td>Designer</td>
-            <td>Creative</td>
-            <td><span class="badge bg-warning">On Leave</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-light action-btn me-2">Edit</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Remove</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Mike Johnson</td>
-            <td>Manager</td>
-            <td>Operations</td>
-            <td><span class="badge bg-success">Active</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-light action-btn me-2">Edit</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Remove</button>
-            </td>
-          </tr>
+          @forelse ($employees as $employee)
+            <tr>
+              <td>{{ $employee->full_name }}</td>
+              <td>{{ $employee->role }}</td>
+              <td>{{ $employee->department }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-light action-btn me-2" data-bs-toggle="modal" data-bs-target="#editModal{{ $employee->id }}">Edit</button>
+                <form action="{{ route('employee.destroy', $employee->id) }}" method="POST" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger action-btn" onclick="return confirm('Are you sure you want to delete this employee?')">Remove</button>
+                </form>
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="4">No employees found.</td>
+            </tr>
+          @endforelse
         </tbody>
       </table>
     </div>
   </div>
 </div>
 
+<!-- Edit Employee Modals -->
+@foreach ($employees as $employee)
+  <div class="modal fade" id="editModal{{ $employee->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $employee->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel{{ $employee->id }}">Edit Employee</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{{ route('employee.update', $employee->id) }}" method="POST">
+          @csrf
+          @method('PUT')
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="full_name{{ $employee->id }}" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="full_name{{ $employee->id }}" name="full_name" value="{{ $employee->full_name }}" required>
+                @error('full_name') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="username{{ $employee->id }}" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username{{ $employee->id }}" name="username" value="{{ $employee->username }}" required>
+                @error('username') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="email{{ $employee->id }}" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email{{ $employee->id }}" name="email" value="{{ $employee->email }}" required>
+                @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="phone_number{{ $employee->id }}" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone_number{{ $employee->id }}" name="phone_number" value="{{ $employee->phone_number }}" required>
+                @error('phone_number') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="department{{ $employee->id }}" class="form-label">Department</label>
+                <select class="form-control" id="department{{ $employee->id }}" name="department" required>
+                  <option value="Information Technology" {{ $employee->department == 'Information Technology' ? 'selected' : '' }}>Information Technology</option>
+                  <option value="Creative" {{ $employee->department == 'Creative' ? 'selected' : '' }}>Creative</option>
+                  <option value="Operations" {{ $employee->department == 'Operations' ? 'selected' : '' }}>Operations</option>
+                  <option value="Human Resources" {{ $employee->department == 'Human Resources' ? 'selected' : '' }}>Human Resources</option>
+                </select>
+                @error('department') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="role{{ $employee->id }}" class="form-label">Role</label>
+                <select class="form-control" id="role{{ $employee->id }}" name="role" required>
+                  <option value="Employee" {{ $employee->role == 'Employee' ? 'selected' : '' }}>Employee</option>
+                  <option value="Developer" {{ $employee->role == 'Developer' ? 'selected' : '' }}>Developer</option>
+                  <option value="Designer" {{ $employee->role == 'Designer' ? 'selected' : '' }}>Designer</option>
+                  <option value="Manager" {{ $employee->role == 'Manager' ? 'selected' : '' }}>Manager</option>
+                </select>
+                @error('role') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="hire_date{{ $employee->id }}" class="form-label">Hire Date</label>
+                <input type="date" class="form-control" id="hire_date{{ $employee->id }}" name="hire_date" value="{{ $employee->hire_date }}" required>
+                @error('hire_date') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="work_location{{ $employee->id }}" class="form-label">Work Location</label>
+                <input type="text" class="form-control" id="work_location{{ $employee->id }}" name="work_location" value="{{ $employee->work_location }}" required>
+                @error('work_location') <span class="text-danger">{{ $message }}</span> @enderror
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+@endforeach
+
 <!-- Add Employee Modal -->
- 
 <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -382,71 +433,69 @@
         <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-  <form id="addEmployeeForm" action="{{ route('employee.store') }}" method="POST">
-    @csrf
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="fullName" class="form-label">Full Name</label>
-        <input type="text" class="form-control" id="fullName" name="full_name" placeholder="Saad Nassih" required>
-        @error('full_name') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      
-      <div class="col-md-6 mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username" name="username" placeholder="saadnassih" required>
-        @error('username') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="saad.nassih@example.com" required>
-        @error('email') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="phoneNumber" class="form-label">Phone Number</label>
-        <input type="tel" class="form-control" id="phoneNumber" name="phone_number" placeholder="+212 600 123 456" required>
-        @error('phone_number') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="department" class="form-label">Department</label>
-        <select class="form-control" id="department" name="department" required>
-          <option value="" disabled selected>Select Department</option>
-          <option value="Information Technology">Information Technology</option>
-          <option value="Creative">Creative</option>
-          <option value="Operations">Operations</option>
-          <option value="Human Resources">Human Resources</option>
-        </select>
-        @error('department') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="role" class="form-label">Role</label>
-        <select class="form-control" id="role" name="role" required>
-          <option value="" disabled selected>Select Role</option>
-          <option value="Employee">Employee</option>
-          <option value="Developer">Developer</option>
-          <option value="Designer">Designer</option>
-          <option value="Manager">Manager</option>
-        </select>
-        @error('role') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="hireDate" class="form-label">Hire Date</label>
-        <input type="date" class="form-control" id="hireDate" name="hire_date" required>
-        @error('hire_date') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="workLocation" class="form-label">Work Location</label>
-        <input type="text" class="form-control" id="workLocation" name="work_location" placeholder="Main Office, Casablanca" required>
-        @error('work_location') <span class="text-danger">{{ $message }}</span> @enderror
-      </div>
-      
-    </div>
-  </form>
-    </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary" form="addEmployeeForm">Save Employee</button>
+      <form id="addEmployeeForm" action="{{ route('employee.store') }}" method="POST">
+        @csrf
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="fullName" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="fullName" name="full_name" placeholder="Saad Nassih" required>
+              @error('full_name') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" placeholder="saadnassih" required>
+              @error('username') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="saad.nassih@example.com" required>
+              @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="phoneNumber" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="phoneNumber" name="phone_number" placeholder="+212 600 123 456" required>
+              @error('phone_number') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="department" class="form-label">Department</label>
+              <select class="form-control" id="department" name="department" required>
+                <option value="" disabled selected>Select Department</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Creative">Creative</option>
+                <option value="Operations">Operations</option>
+                <option value="Human Resources">Human Resources</option>
+              </select>
+              @error('department') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="role" class="form-label">Role</label>
+              <select class="form-control" id="role" name="role" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="Employee">Employee</option>
+                <option value="Developer">Developer</option>
+                <option value="Designer">Designer</option>
+                <option value="Manager">Manager</option>
+              </select>
+              @error('role') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="hireDate" class="form-label">Hire Date</label>
+              <input type="date" class="form-control" id="hireDate" name="hire_date" required>
+              @error('hire_date') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="workLocation" class="form-label">Work Location</label>
+              <input type="text" class="form-control" id="workLocation" name="work_location" placeholder="Main Office, Casablanca" required>
+              @error('work_location') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Employee</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -460,7 +509,6 @@
     </div>
     <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
   </div>
-
   <div class="section-label">Date</div>
   <div class="d-flex align-items-center gap-2 mb-3">
     <div class="date-box text-center">
@@ -475,7 +523,6 @@
       <div class="text-uppercase small text-primary" id="ampm"></div>
     </div>
   </div>
-
   <div class="section-label">Message</div>
   <div class="message-box d-flex align-items-start gap-2">
     <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
@@ -488,65 +535,23 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Fonction pour mettre à jour l'heure et la date
   function updateDateTime() {
     const now = new Date();
-    
-    // Mise à jour de la date
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
-    
-    // Mise à jour de l'heure
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
     const minutes = now.getMinutes().toString().padStart(2, '0');
-    
     document.getElementById('hour').textContent = hours;
     document.getElementById('minute').textContent = minutes;
     document.getElementById('ampm').textContent = ampm;
   }
-
-  // Mise à jour immédiate et périodique
   updateDateTime();
   setInterval(updateDateTime, 60000);
-
-  // Gestion de la soumission du formulaire
-  document.getElementById('saveEmployeeBtn').addEventListener('click', function() {
-    const form = document.getElementById('addEmployeeForm');
-    if (form.checkValidity()) {
-      const employeeData = {
-        fullName: document.getElementById('fullName').value,
-        employeeId: document.getElementById('employeeId').value,
-        email: document.getElementById('email').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
-        department: document.getElementById('department').value,
-        role: document.getElementById('role').value,
-        hireDate: document.getElementById('hireDate').value,
-        workLocation: document.getElementById('workLocation').value
-      };
-      console.log('Employee Data:', employeeData);
-      // Fermer le modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal'));
-      modal.hide();
-      // Réinitialiser le formulaire
-      form.reset();
-      // Ici, vous pouvez ajouter une logique pour envoyer les données au backend
-    } else {
-      form.reportValidity();
-    }
-  });
-  document.getElementById('saveEmployeeBtn').addEventListener('click', function() {
-    const form = document.getElementById('addEmployeeForm');
-    if (form.checkValidity()) {
-        form.submit();
-    } else {
-        form.reportValidity();
-    }
-});
 </script>
 </body>
 </html>
