@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AubCharika - Clock In</title>
+  <title>AubCharika - Clock Out</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -82,18 +82,18 @@
 
     /* User Card */
     .user-card-container {
-  grid-column: 3;
-  width: 280px;
-  background-color: #000;
-  color: white;
-  border-radius: 10px;
-  padding: 20px;
-  font-family: 'Segoe UI', sans-serif;
-  height: fit-content;
-  margin-top: 30px;
-  position: sticky;
-  top: 30px;
-}
+      grid-column: 3;
+      width: 280px;
+      background-color: #000;
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      height: fit-content;
+      margin-top: 30px;
+      position: sticky;
+      top: 30px;
+    }
 
     /* Clock In Section */
     .clock-in-container {
@@ -124,12 +124,21 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background:rgb(102, 255, 0);
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 30px;
       box-shadow: 0 4px 15px rgba(0, 255, 21, 0.4);
+    }
+
+    .clock-circle.clocked-in {
+      background: rgb(102, 255, 0);
+      box-shadow: 0 4px 15px rgba(0, 255, 21, 0.4);
+    }
+
+    .clock-circle.clocked-out {
+      background: rgb(209, 31, 31);
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
     }
 
     .clock-circle i {
@@ -147,29 +156,65 @@
 
     /* Date & Time Boxes */
     .date-box {
-  background: #ffb300;
-background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1) 67%, rgba(248, 238, 196, 1) 100%);
-  padding: 10px;
-  border-radius: 15px;
-  width: 100px;
-  color: white;
-}
+      background: #ffb300;
+      background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1) 67%, rgba(248, 238, 196, 1) 100%);
+      padding: 10px;
+      border-radius: 15px;
+      width: 100px;
+      color: white;
+    }
 
-.time-box {
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 15px;
-  width: 80px;
-  color: black;
-}
+    .time-box {
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 15px;
+      width: 80px;
+      color: black;
+    }
 
-.message-box {
-  background: #ffb300;
-background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1) 67%, rgba(248, 238, 196, 1) 100%);
-  border-radius: 15px;
-  padding: 10px;
-  color: black;
-}
+    .message-box {
+      background: #ffb300;
+      background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1) 67%, rgba(248, 238, 196, 1) 100%);
+      border-radius: 15px;
+      padding: 10px;
+      color: black;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-box::-webkit-scrollbar-track {
+      background: rgba(186, 186, 186, 0.2);
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb {
+      background: white;
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb:hover {
+      background: white;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid rgba(255, 179, 0, 0.3);
+      border-radius: 8px;
+    }
+
+    .message-item:last-child {
+      margin-bottom: 0;
+    }
+
     /* Search & Notification */
     .search-bar input {
       background: rgba(255, 255, 255, 0.1);
@@ -189,21 +234,24 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
       align-items: center;
       justify-content: center;
     }
+
     .user-avatar-small {
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 50%;
-}
-#carte{
- background: none !important;
-}
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 50%;
-}
+      width: 30px;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    #carte {
+      background: none !important;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -212,13 +260,13 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
 
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a  class="nav-link active">
+        <a href="{{ url('Clock-In') }}" class="nav-link active">
           <i class="fas fa-clock"></i> Clock In/Out
         </a>
       </li>
@@ -258,9 +306,12 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
-        </a>
+        <form action="{{ route('logout') }}" method="POST">
+          @csrf
+          <button type="submit" class="nav-link btn btn-link">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </form>
       </li>
     </ul>
   </div>
@@ -287,12 +338,19 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
     </div>
 
     <div class="clock-in-section">
-      <div class="clock-circle">
+      <div class="clock-circle {{ $isClockedIn ? 'clocked-in' : 'clocked-out' }}">
         <i class="fas fa-fingerprint"></i>
       </div>
       <div class="clockin">
-        <button class="btn btn-light clockin-btn mb-3">Today's Attendance</button><br>
-        <a href="Clock_In"><button class="btn btn-outline-light clockin-btn">Clock Out</button></a>
+        @if($isClockedIn)
+          <form method="POST" action="{{ url('Clock-Out') }}">
+            @csrf
+            <button type="submit" class="btn btn-outline-light clockin-btn mb-3">Clock Out</button>
+          </form>
+        @else
+          <button class="btn btn-light clockin-btn mb-3" disabled>Clocked Out</button><br>
+          <a href="{{ url('Clock-In') }}"><button class="btn btn-outline-light clockin-btn">Clock In</button></a>
+        @endif
       </div>
     </div>
   </div>
@@ -302,10 +360,17 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>employee</small>
+      <h6 class="fw-bold mb-0">{{ Auth::user()->full_name }}</h6>
+      <small>{{ Auth::user()->role }}</small>
     </div>
-    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
+    <div class="profile-dropdown dropdown">
+      <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ url('myaccount') }}"><i class="fas fa-user-circle"></i> My Account</a></li>
+        <li><a class="dropdown-item" href="{{ url('logout') }}"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
+        <li><a class="dropdown-item" href="{{ url('set-profile-picture') }}"><i class="fas fa-camera"></i> Set Profile Picture</a></li>
+      </ul>
+    </div>
   </div>
 
   <div class="section-label">Date</div>
@@ -323,28 +388,39 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
     </div>
   </div>
 
-  <div class="section-label">Message</div>
-  <div class="message-box d-flex align-items-start gap-2">
-    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-    <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-      <div>Khdm mgwd wla sir t9wd</div>
-    </div>
+  <div class="section-label">Messages</div>
+  <div class="message-box">
+    @forelse ($messages as $message)
+      <div class="message-item">
+        <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+        <div>
+          <div class="fw-bold small">
+            {{ $message->sender->full_name ?? 'Admin' }}
+            <span class="text-muted">
+              • {{ $message->sent_at_human }}
+            </span>
+          </div>
+          <div>{{ $message->content }}</div>
+        </div>
+      </div>
+    @empty
+      <div>No messages available.</div>
+    @endforelse
   </div>
 </div>
 
 <script>
-  // Fonction pour mettre à jour l'heure et la date
+  // Function to update date and time
   function updateDateTime() {
-    const now = new Date();
+    const now = new Date('2025-05-20T00:54:00+01:00'); // Updated to 12:54 AM
     
-    // Mise à jour de la date
+    // Update date
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
     
-    // Mise à jour de l'heure
+    // Update time
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
@@ -356,10 +432,12 @@ background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1
     document.getElementById('ampm').textContent = ampm;
   }
 
-  // Mise à jour immédiate et périodique
+  // Immediate and periodic update
   updateDateTime();
   setInterval(updateDateTime, 60000);
 </script>
 
+<!-- Bootstrap JS for dropdown functionality -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

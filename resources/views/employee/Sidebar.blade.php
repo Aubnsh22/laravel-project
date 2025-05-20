@@ -11,12 +11,12 @@
           <i class="fas fa-th"></i> Clock In
         </a>
       </li>
-      <li><a href="#" class="nav-link"><i class="fas fa-file-alt"></i> History</a></li>
-      <li><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Stats</a></li>
-      <li><a href="#" class="nav-link"><i class="fas fa-plane-departure"></i> Leave</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-plane-departure"></i> Tasks</a></li>
+      <li><a href="{{ route('employee.history') }}" class="nav-link"><i class="fas fa-file-alt"></i> History</a></li>
+      <li><a href="{{ route('employee.stats') }}" class="nav-link"><i class="fas fa-chart-bar"></i> Stats</a></li>
+      <li><a href="{{ route('employee.leave') }}" class="nav-link"><i class="fas fa-plane-departure"></i> Leave</a></li>
+      <li><a href="{{ route('employee.tasks') }}" class="nav-link"><i class="fas fa-plane-departure"></i> Tasks</a></li>
 
-      <li><a href="#" class="nav-link"><i class="fas fa-gear"></i> Settings</a></li>
+      <li><a href="{{ route('employee.setting') }}" class="nav-link"><i class="fas fa-gear"></i> Settings</a></li>
     </ul>
   </div>
 

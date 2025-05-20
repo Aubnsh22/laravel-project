@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('hire_date')->nullable();
             $table->string('work_location')->nullable();
             $table->string('password');
+        $table->string('profile_photo_path')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

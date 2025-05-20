@@ -222,7 +222,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('tasks') }}" class="nav-link">
+        <a href="{{ url('tasksadmin') }}" class="nav-link">
           <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
@@ -242,7 +242,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('settings') }}" class="nav-link">
+        <a href="{{ url('settingsadmin') }}" class="nav-link">
           <i class="fas fa-cog"></i> Settings
         </a>
       </li>
@@ -252,7 +252,7 @@
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="{{ url('myaccount') }}" class="nav-link">
+        <a href="{{ url('myaccountt') }}" class="nav-link">
           <i class="fas fa-user-circle"></i> My Account
         </a>
       </li>

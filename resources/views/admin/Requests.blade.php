@@ -29,7 +29,6 @@
       color: white;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -38,7 +37,7 @@
       top: 0;
       padding: 20px;
       background: rgba(0, 0, 0, 0.3);
-      backdropPPT-filter: blur(10px);
+      backdrop-filter: blur(10px);
       border-right: 1px solid rgba(255, 179, 0, 0.1);
     }
 
@@ -73,14 +72,12 @@
       margin-right: 10px;
     }
 
-    /* Main Content */
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-    /* User Card */
     .user-card-container {
       grid-column: 3;
       width: 280px;
@@ -95,7 +92,6 @@
       top: 30px;
     }
 
-    /* Requests Section */
     .requests-container {
       max-width: 800px;
       margin: 0 auto;
@@ -144,7 +140,6 @@
       border-radius: 5px;
     }
 
-    /* Date & Time Boxes */
     .date-box {
       background: var(--gold-gradient);
       padding: 10px;
@@ -168,7 +163,6 @@
       color: black;
     }
 
-    /* Search & Notification */
     .search-bar input {
       background: rgba(255, 255, 255, 0.1);
       border: none;
@@ -208,38 +202,36 @@
   </style>
 </head>
 <body>
-
 <!-- Sidebar -->
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
-
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ url('dashboard') }}" class="nav-link">
+        <a href="{{ route('dashboard') }}" class="nav-link">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('employees') }}" class="nav-link">
+        <a href="{{ route('admin.employees') }}" class="nav-link">
           <i class="fas fa-users"></i> Employees
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('tasks') }}" class="nav-link">
+        <a href="{{ url('tasksadmin') }}" class="nav-link">
           <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('statistics') }}" class="nav-link">
+        <a href="{{ route('statistics') }}" class="nav-link">
           <i class="fas fa-chart-bar"></i> Statistics
         </a>
       </li>
-      <li class="nav-item">
-        <a href="{{ url('requests') }}" class="nav-link active">
+     <li class="nav-item ">
+        <a  id="page" href="{{ url('settingsadmin') }}" class="nav-link active">
           <i class="fas fa-envelope"></i> Requests
         </a>
       </li>
@@ -249,22 +241,21 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('settings') }}" class="nav-link">
+        <a href="{{ route('settings') }}" class="nav-link">
           <i class="fas fa-cog"></i> Settings
         </a>
       </li>
     </ul>
   </div>
-
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="{{ url('myaccount') }}" class="nav-link">
+        <a href="{{ route('myaccountt') }}" class="nav-link">
           <i class="fas fa-user-circle"></i> My Account
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="{{ route('logout') }}" class="nav-link">
           <i class="fas fa-sign-out-alt"></i> Sign Out
         </a>
       </li>
@@ -294,6 +285,12 @@
 
     <div class="requests-section">
       <h4 class="mb-4">Pending Requests</h4>
+      @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+      @endif
+      @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+      @endif
       <table class="request-table">
         <thead>
           <tr>
@@ -306,39 +303,39 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>John Doe</td>
-            <td>Annual Leave</td>
-            <td>2025-05-17</td>
-            <td>5 days</td>
-            <td><span class="badge bg-warning">Pending</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-success action-btn me-2">Approve</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Deny</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Jane Smith</td>
-            <td>Sick Leave</td>
-            <td>2025-05-16</td>
-            <td>2 days</td>
-            <td><span class="badge bg-warning">Pending</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-success action-btn me-2">Approve</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Deny</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Mike Johnson</td>
-            <td>Remote Work</td>
-            <td>2025-05-15</td>
-            <td>3 days</td>
-            <td><span class="badge bg-warning">Pending</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-success action-btn me-2">Approve</button>
-              <button class="btn btn-sm btn-outline-danger action-btn">Deny</button>
-            </td>
-          </tr>
+          @forelse ($requests as $request)
+            <tr>
+              <td>{{ $request->user->full_name }}</td>
+              <td>{{ ucfirst($request->leave_type) }} Leave</td>
+              <td>{{ $request->created_at->format('Y-m-d') }}</td>
+              <td>
+                {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} days
+              </td>
+              <td>
+                <span class="badge {{ $request->status == 'approved' ? 'bg-success' : ($request->status == 'denied' ? 'bg-danger' : 'bg-warning') }}">
+                  {{ ucfirst($request->status) }}
+                </span>
+              </td>
+              <td>
+                @if ($request->status == 'pending')
+                  <form action="{{ route('requests.approve', $request->id) }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-success action-btn me-2">Approve</button>
+                  </form>
+                  <form action="{{ route('requests.deny', $request->id) }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-danger action-btn">Deny</button>
+                  </form>
+                @else
+                  <span>-</span>
+                @endif
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="6" class="text-center">No pending requests found.</td>
+            </tr>
+          @endforelse
         </tbody>
       </table>
     </div>
@@ -349,8 +346,8 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>Admin</small>
+      <h6 class="fw-bold mb-0">{{ Auth::user()->full_name ?? 'Saad Nassih' }}</h6>
+      <small>{{ Auth::user()->role ?? 'Admin' }}</small>
     </div>
     <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
   </div>
@@ -380,33 +377,26 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Fonction pour mettre à jour l'heure et la date
   function updateDateTime() {
     const now = new Date();
-    
-    // Mise à jour de la date
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
-    
-    // Mise à jour de l'heure
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
     const minutes = now.getMinutes().toString().padStart(2, '0');
-    
     document.getElementById('hour').textContent = hours;
     document.getElementById('minute').textContent = minutes;
     document.getElementById('ampm').textContent = ampm;
   }
 
-  // Mise à jour immédiate et périodique
   updateDateTime();
   setInterval(updateDateTime, 60000);
 </script>
-
 </body>
 </html>

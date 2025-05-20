@@ -29,7 +29,6 @@
       color: white;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -73,14 +72,12 @@
       margin-right: 10px;
     }
 
-    /* Main Content */
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-    /* User Card */
     .user-card-container {
       grid-column: 3;
       width: 280px;
@@ -95,7 +92,6 @@
       top: 30px;
     }
 
-    /* Leave Section */
     .leave-container {
       max-width: 600px;
       margin: 0 auto;
@@ -159,7 +155,6 @@
       opacity: 1;
     }
 
-    /* Search & Notification */
     .search-bar input {
       background: rgba(255, 255, 255, 0.1);
       border: none;
@@ -231,7 +226,7 @@
       </div>
       <ul id="elements" class="nav flex-column mb-auto">
         <li class="nav-item">
-          <a href="{{ url('clockin') }}" class="nav-link">
+          <a href="{{ url('Clock_In') }}" class="nav-link">
             <i class="fas fa-clock"></i> Clock In/Out
           </a>
         </li>
@@ -281,43 +276,57 @@
   <!-- Main Content -->
   <div class="main-content">
     <div class="leave-container">
-      
-
       <h2 class="mb-4 text-warning fw-bold">
         <i class="fas fa-plane-departure me-2"></i>Leave Management
       </h2>
 
-      
-
       <div class="leave-section" id="leaveForm">
         <h5 class="mb-4">Leave Request Form</h5>
-        <form>
+        <form id="leaveForm" action="{{ route('leave.store') }}" method="POST" enctype="multipart/form-data">
+          @csrf
+          
+          @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+          @endif
+          @if (session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+          @endif
+
           <div class="mb-3">
             <label for="leaveType" class="form-label">Leave Type</label>
-            <select class="form-select" id="leaveType" required>
+            <select class="form-select" id="leaveType" name="leave_type" required>
               <option value="">-- Select --</option>
               <option value="vacation">Vacation</option>
               <option value="sick">Sick Leave</option>
               <option value="personal">Personal Leave</option>
             </select>
+            @error('leave_type') <span class="text-danger">{{ $message }}</span> @enderror
           </div>
+          
           <div class="mb-3">
             <label for="startDate" class="form-label">Start Date</label>
-            <input type="date" class="form-control" id="startDate" required min="2025-05-18">
+            <input type="date" class="form-control" id="startDate" name="start_date" required min="{{ now()->format('Y-m-d') }}">
+            @error('start_date') <span class="text-danger">{{ $message }}</span> @enderror
           </div>
+          
           <div class="mb-3">
             <label for="endDate" class="form-label">End Date</label>
-            <input type="date" class="form-control" id="endDate" required min="2025-05-18">
+            <input type="date" class="form-control" id="endDate" name="end_date" required min="{{ now()->format('Y-m-d') }}">
+            @error('end_date') <span class="text-danger">{{ $message }}</span> @enderror
           </div>
+
           <div class="mb-3">
-            <label for="duration" class="form-label">Duration (Days)</label>
-            <input type="text" class="form-control" id="duration" readonly>
+            <label for="message" class="form-label">Message</label>
+            <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+            @error('message') <span class="text-danger">{{ $message }}</span> @enderror
           </div>
           
           <div id="certificateUpload" class="mb-3" style="display: none;">
             <label for="medicalCertificate" class="form-label">Upload Medical Certificate</label>
-            <input type="file" class="form-control" id="medicalCertificate" accept="image/*,application/pdf">
+            <input type="file" class="form-control" id="medicalCertificate" name="certificate" accept="image/*,application/pdf">
+            @error('certificate') <span class="text-danger">{{ $message }}</span> @enderror
           </div>
+          
           <button type="submit" class="btn leave-btn">Submit</button>
         </form>
       </div>
@@ -328,8 +337,8 @@
   <div id="carte" class="user-card-container mr-5">
     <div class="user-header d-flex align-items-center justify-content-between mb-3">
       <div>
-        <h6 class="fw-bold mb-0">Saad Nassih</h6>
-        <small>employee</small>
+        <h6 class="fw-bold mb-0">{{ Auth::user()->full_name ?? 'Saad Nassih' }}</h6>
+        <small>{{ Auth::user()->role ?? 'employee' }}</small>
       </div>
       <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
     </div>
@@ -359,8 +368,8 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Function to update date and time
     function updateDateTime() {
       const now = new Date();
       document.getElementById('year').textContent = now.getFullYear();
@@ -377,28 +386,6 @@
       document.getElementById('ampm').textContent = ampm;
     }
 
-    // Calculate leave duration
-    function calculateDuration() {
-      const startDate = document.getElementById('startDate').value;
-      const endDate = document.getElementById('endDate').value;
-      const durationField = document.getElementById('duration');
-
-      if (startDate && endDate) {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        if (end >= start) {
-          const diffTime = Math.abs(end - start);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Include both start and end days
-          durationField.value = diffDays;
-        } else {
-          durationField.value = 'Invalid: End date must be after start date';
-        }
-      } else {
-        durationField.value = '';
-      }
-    }
-
-    // Handle medical certificate upload visibility
     document.getElementById('leaveType').addEventListener('change', function() {
       const certificateUpload = document.getElementById('certificateUpload');
       if (this.value === 'sick') {
@@ -410,16 +397,15 @@
       }
     });
 
-    // Update duration on date change
-    document.getElementById('startDate').addEventListener('change', calculateDuration);
-    document.getElementById('endDate').addEventListener('change', calculateDuration);
-
-    // Smooth scroll to leave form on "View Leave Form" click
-    document.getElementById('viewLeaveForm').addEventListener('click', () => {
-      document.getElementById('leaveForm').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('leaveForm').addEventListener('submit', function(e) {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const endDate = new Date(document.getElementById('endDate').value);
+      if (endDate < startDate) {
+        e.preventDefault();
+        alert('End date must be after or equal to start date');
+      }
     });
 
-    // Immediate and periodic update
     updateDateTime();
     setInterval(updateDateTime, 60000);
   </script>

@@ -280,7 +280,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="{{ url('leave') }}" class="nav-link">
+          <a href="{{ route('employee.leave') }}" class="nav-link">
             <i class="fas fa-plane-departure"></i> Leave
           </a>
         </li>
@@ -326,18 +326,22 @@
         </div>
         <div id="password-form" class="settings-form active">
           <h5 class="mb-4">Change Password</h5>
-          <form>
+          <form action="{{ route('password.update') }}" method="POST">
+            @csrf
             <div class="mb-3">
               <label for="currentPassword" class="form-label">Current Password</label>
-              <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
+              <input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Enter current password" required>
+              @error('currentPassword') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="mb-3">
               <label for="newPassword" class="form-label">New Password</label>
-              <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+              <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter new password" required>
+              @error('newPassword') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="mb-3">
               <label for="confirmPassword" class="form-label">Confirm New Password</label>
-              <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required>
+              @error('confirmPassword') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <button type="submit" class="btn settings-btn">Update Password</button>
           </form>

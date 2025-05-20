@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+<<<<<<< HEAD
   <title>AubCharika - Messages</title>
+=======
+  <title>AubCharika - Send Message</title>
+>>>>>>> ayoub
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -29,7 +33,10 @@
       color: white;
     }
 
+<<<<<<< HEAD
     /* Sidebar */
+=======
+>>>>>>> ayoub
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -73,15 +80,22 @@
       margin-right: 10px;
     }
 
+<<<<<<< HEAD
     /* Main Content */
+=======
+>>>>>>> ayoub
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
+<<<<<<< HEAD
     /* User Card */
 .user-card-container {
+=======
+    .user-card-container {
+>>>>>>> ayoub
       grid-column: 3;
       width: 280px;
       background-color: #000;
@@ -95,8 +109,12 @@
       top: 30px;
     }
 
+<<<<<<< HEAD
     /* Messages Section */
     .messages-container {
+=======
+    .message-container {
+>>>>>>> ayoub
       max-width: 800px;
       margin: 0 auto;
     }
@@ -110,7 +128,11 @@
       box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
     }
 
+<<<<<<< HEAD
     .messages-section {
+=======
+    .message-section {
+>>>>>>> ayoub
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
       border-radius: 12px;
@@ -118,80 +140,12 @@
       border: 1px solid rgba(255, 179, 0, 0.2);
     }
 
-    .compose-message {
-      margin-bottom: 30px;
-    }
-
-    .compose-message select,
-    .compose-message input,
-    .compose-message textarea {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      width: 100%;
-    }
-
-    .compose-message textarea {
-      resize: vertical;
-      min-height: 150px;
-    }
-
-    .compose-message button {
-      background: var(--gold-gradient);
-      color: #000;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      width: 150px;
-    }
-
-    .recipient-type {
-      margin-bottom: 15px;
-    }
-
-    .recipient-type label {
-      margin-right: 20px;
+    .form-group label {
+      font-weight: 500;
       color: rgba(255, 255, 255, 0.8);
     }
 
-    .recipient-type input[type="radio"] {
-      margin-right: 5px;
-    }
-
-    .recipient-select {
-      display: none;
-    }
-
-    .recipient-select.active {
-      display: block;
-    }
-    .date-box {
-      background: var(--gold-gradient);
-      padding: 10px;
-      border-radius: 15px;
-      width: 100px;
-      color: white;
-    }
-
-    .time-box {
-      background-color: #ffffff;
-      padding: 10px;
-      border-radius: 15px;
-      width: 80px;
-      color: black;
-    }
-       .message-box {
-      background: var(--gold-gradient);
-      border-radius: 15px;
-      padding: 10px;
-      color: black;
-    }
-
-
-        .search-bar input {
+    .search-bar input {
       background: rgba(255, 255, 255, 0.1);
       border: none;
       color: white;
@@ -227,66 +181,86 @@
       object-fit: cover;
       border-radius: 50%;
     }
+
+    .date-box {
+      background: var(--gold-gradient);
+      padding: 10px;
+      border-radius: 15px;
+      width: 100px;
+      color: white;
+    }
+
+    .time-box {
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 15px;
+      width: 80px;
+      color: black;
+    }
+
+    .message-box {
+      background: var(--gold-gradient);
+      border-radius: 15px;
+      padding: 10px;
+      color: black;
+    }
   </style>
 </head>
 <body>
-
 <!-- Sidebar -->
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
-      <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
+      <h1 class="text-warning fw-bold mt-1">AubCharika</h1>
     </div>
-
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ url('dashboard') }}" class="nav-link">
+        <a href="{{ route('dashboard') }}" class="nav-link">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('employees') }}" class="nav-link">
+        <a href="{{ route('admin.employees') }}" class="nav-link">
           <i class="fas fa-users"></i> Employees
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('tasks') }}" class="nav-link">
+        <a href="{{ url('tasksadmin') }}" class="nav-link">
           <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('statistics') }}" class="nav-link">
+        <a href="{{ route('statistics') }}" class="nav-link">
           <i class="fas fa-chart-bar"></i> Statistics
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('requests') }}" class="nav-link">
-          <i class="fas fa-envelope"></i> Requests
+        <a href="{{ url('settingsadmin') }}" class="nav-link">
+          <i class="fas fa-cog"></i> Settings
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('message') }}" class="nav-link active">
+        <a href="{{ url('requests') }}" class="nav-link active">
           <i class="fas fa-envelope"></i> Message
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('settings') }}" class="nav-link">
+        <a href="{{ route('settings') }}" class="nav-link">
           <i class="fas fa-cog"></i> Settings
         </a>
       </li>
     </ul>
   </div>
-
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="{{ url('myaccount') }}" class="nav-link">
+        <a href="{{ route('myaccountt') }}" class="nav-link">
           <i class="fas fa-user-circle"></i> My Account
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="{{ route('logout') }}" class="nav-link">
           <i class="fas fa-sign-out-alt"></i> Sign Out
         </a>
       </li>
@@ -296,10 +270,10 @@
 
 <!-- Main Content -->
 <div class="main-content">
-  <div class="messages-container">
+  <div class="message-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="search-bar">
-        <input type="text" class="form-control" placeholder="Search Messages...">
+        <input type="text" class="form-control" id="searchInput" placeholder="Search by Name or Department...">
       </div>
       <div class="notification-icon">
         <button class="btn rounded-circle">
@@ -309,35 +283,50 @@
     </div>
 
     <div class="hero-section">
-      <h1 class="fw-bold mb-3">Message<br>Composition</h1>
-      <button class="btn btn-dark fw-semibold me-3">View Sent Messages</button>
-      <button class="btn btn-outline-dark fw-semibold">Clear Form</button>
+      <h1 class="fw-bold mb-3">Send Message</h1>
+      <button class="btn btn-dark fw-semibold me-3" id="sendMessageBtn">Send Message</button>
     </div>
 
-    <div class="messages-section">
-      <h4 class="mb-4">Compose Message</h4>
-      <div class="compose-message">
-        <div class="recipient-type">
-          <label><input type="radio" name="recipient-type" value="all" checked> All Employees</label>
-          <label><input type="radio" name="recipient-type" value="person"> Specific Person</label>
-          <label><input type="radio" name="recipient-type" value="department"> Specific Department</label>
+    <div class="message-section">
+      @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+      @endif
+      @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+      @endif
+      <form id="messageForm" action="{{ route('messages.store') }}" method="POST" style="display: none;">
+        @csrf
+        <div class="mb-3">
+          <label for="recipientType" class="form-label">Send To:</label>
+          <select class="form-select" id="recipientType" name="recipientType" required>
+            <option value="all">All Employees</option>
+            <option value="name">Specific Employee</option>
+            <option value="department">By Department</option>
+          </select>
         </div>
-        <select class="form-control recipient-select" id="person-select" required>
-          <option value="" disabled selected>Select Employee</option>
-          <option value="ayoub">Ayoub Nassih</option>
-          <option value="jane">Jane Smith</option>
-          <option value="john">John Doe</option>
-        </select>
-        <select class="form-control recipient-select" id="department-select" required>
-          <option value="" disabled selected>Select Department</option>
-          <option value="hr">Human Resources</option>
-          <option value="it">IT Department</option>
-          <option value="finance">Finance Department</option>
-        </select>
-        <input type="text" class="form-control" placeholder="Subject" required>
-        <textarea class="form-control" placeholder="Type your message..." required></textarea>
-        <button class="btn">Send Message</button>
-      </div>
+        <div class="mb-3" id="nameSearch" style="display: none;">
+          <label for="recipientName" class="form-label">Select Employee:</label>
+          <select class="form-select" id="recipientName" name="recipientName">
+            @foreach ($users as $user)
+              <option value="{{ $user->id }}">{{ $user->full_name }} ({{ $user->department }})</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="mb-3" id="deptSearch" style="display: none;">
+          <label for="recipientDept" class="form-label">Select Department:</label>
+          <select class="form-select" id="recipientDept" name="recipientDept">
+            <option value="Information Technology">Information Technology</option>
+            <option value="Creative">Creative</option>
+            <option value="Operations">Operations</option>
+            <option value="Human Resources">Human Resources</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="messageContent" class="form-label">Message:</label>
+          <textarea class="form-control" id="messageContent" name="messageContent" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-warning">Send</button>
+      </form>
     </div>
   </div>
 </div>
@@ -346,8 +335,8 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>Admin</small>
+      <h6 class="fw-bold mb-0">{{ Auth::user()->full_name ?? 'Admin' }}</h6>
+      <small>{{ Auth::user()->role ?? 'Admin' }}</small>
     </div>
     <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
   </div>
@@ -377,33 +366,46 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Fonction pour mettre à jour l'heure et la date
+  document.getElementById('sendMessageBtn').addEventListener('click', function() {
+    document.getElementById('messageForm').style.display = 'block';
+  });
+
+  document.getElementById('recipientType').addEventListener('change', function() {
+    const type = this.value;
+    document.getElementById('nameSearch').style.display = type === 'name' ? 'block' : 'none';
+    document.getElementById('deptSearch').style.display = type === 'department' ? 'block' : 'none';
+  });
+
   function updateDateTime() {
     const now = new Date();
-    
-    // Mise à jour de la date
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
-    
-    // Mise à jour de l'heure
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
     const minutes = now.getMinutes().toString().padStart(2, '0');
-    
     document.getElementById('hour').textContent = hours;
     document.getElementById('minute').textContent = minutes;
     document.getElementById('ampm').textContent = ampm;
   }
 
-  // Mise à jour immédiate et périodique
   updateDateTime();
   setInterval(updateDateTime, 60000);
-</script>
 
+  // Search functionality
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const select = document.getElementById('recipientName');
+    Array.from(select.options).forEach(option => {
+      const text = option.textContent.toLowerCase();
+      option.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+  });
+</script>
 </body>
 </html>

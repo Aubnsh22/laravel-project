@@ -124,11 +124,20 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background: rgb(209, 31, 31);
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 30px;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+    }
+
+    .clock-circle.clocked-in {
+      background: rgb(102, 255, 0);
+      box-shadow: 0 4px 15px rgba(0, 255, 21, 0.4);
+    }
+
+    .clock-circle.clocked-out {
+      background: rgb(209, 31, 31);
       box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
     }
 
@@ -164,11 +173,46 @@
     }
 
     .message-box {
-      background: #ffb300;
-      background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1) 67%, rgba(248, 238, 196, 1) 100%);
+      background: none;
       border-radius: 15px;
       padding: 10px;
       color: black;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-box::-webkit-scrollbar-track {
+      background: rgba(186, 186, 186, 0.2);
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb {
+      background: white;
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb:hover {
+      background: white;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid rgba(255, 179, 0, 0.3);
+      border-radius: 8px;
+      background: linear-gradient(195deg, rgba(255, 179, 0, 1) 0%, rgba(255, 147, 5, 1) 67%, rgba(248, 238, 196, 1) 100%);
+    }
+
+    .message-item:last-child {
+      margin-bottom: 0;
     }
 
     /* Search & Notification */
@@ -237,11 +281,10 @@
 <body>
 
 <!-- Sidebar -->
- <h1>salam</h1>
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
 
@@ -287,13 +330,13 @@
         </a>
       </li>
       <li class="nav-item">
-    <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit" class="nav-link btn btn-link">
+        <form action="{{ route('logout') }}" method="POST">
+          @csrf
+          <button type="submit" class="nav-link btn btn-link">
             <i class="fas fa-sign-out-alt"></i> Sign Out
-        </button>
-    </form>
-</li>
+          </button>
+        </form>
+      </li>
     </ul>
   </div>
 </div>
@@ -319,12 +362,19 @@
     </div>
 
     <div class="clock-in-section">
-      <div class="clock-circle">
+      <div class="clock-circle {{ $isClockedIn ? 'clocked-in' : 'clocked-out' }}">
         <i class="fas fa-fingerprint"></i>
       </div>
       <div class="clockin">
-        <button class="btn btn-light clockin-btn mb-3">Today's Attendance</button><br>
-        <a href="Clock_Out"><button class="btn btn-outline-light clockin-btn">Clock In</button></a>
+        @if($isClockedIn)
+          <button class="btn btn-light clockin-btn mb-3" disabled>Clocked In at {{ \Carbon\Carbon::parse($attendance->clock_in)->format('h:i A') }}</button><br>
+          <a href="{{ url('Clock-Out') }}"><button class="btn btn-outline-light clockin-btn">Clock Out</button></a>
+        @else
+          <form method="POST" action="{{ url('Clock-In') }}">
+            @csrf
+            <button type="submit" class="btn btn-outline-light clockin-btn mb-3">Clock In</button>
+          </form>
+        @endif
       </div>
     </div>
   </div>
@@ -334,14 +384,15 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>employee</small>
+      <h6 class="fw-bold mb-0">{{ Auth::user()->full_name }}</h6>
+      <small>{{ Auth::user()->role }}</small>
     </div>
     <div class="profile-dropdown dropdown">
-      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+      <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
       <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="{{ url('myaccount') }}"><i class="fas fa-user-circle"></i> My Account</a></li>
         <li><a class="dropdown-item" href="{{ url('logout') }}"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
+        <li><a class="dropdown-item" href="{{ url('set-profile-picture') }}"><i class="fas fa-camera"></i> Set Profile Picture</a></li>
       </ul>
     </div>
   </div>
@@ -361,20 +412,31 @@
     </div>
   </div>
 
-  <div class="section-label">Message</div>
-  <div class="message-box d-flex align-items-start gap-2">
-    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-    <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-      <div>Khdm mgwd wla sir t9wd</div>
-    </div>
+  <div class="section-label">Messages</div>
+  <div class="message-box">
+    @forelse ($messages as $message)
+      <div class="message-item">
+        <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+        <div>
+          <div class="fw-bold small">
+            {{ $message->sender->full_name ?? 'Admin' }}
+            <span class="text-muted">
+              • {{ $message->sent_at_human }}
+            </span>
+          </div>
+          <div>{{ $message->content }}</div>
+        </div>
+      </div>
+    @empty
+      <div>No messages available.</div>
+    @endforelse
   </div>
 </div>
 
 <script>
   // Function to update date and time
   function updateDateTime() {
-    const now = new Date();
+    const now = new Date('2025-05-20T00:54:00+01:00'); // Updated to 12:54 AM
     
     // Update date
     document.getElementById('year').textContent = now.getFullYear();
