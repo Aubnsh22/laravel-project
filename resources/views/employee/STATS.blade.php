@@ -256,27 +256,27 @@
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
         <a href="{{ url('Clock_In') }}" class="nav-link">
-          <i class="fas fa-clock"></i> Clock In
+          <i class="fas fa-clock"></i> Clock In/Out
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('history') }}" class="nav-link">
-          <i class="fas fa-history"></i> Historique
+          <i class="fas fa-history"></i> History
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('stats') }}" class="nav-link active">
-          <i class="fas fa-chart-bar"></i> Statistiques
+          <i class="fas fa-chart-bar"></i> Stats
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('leave') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Congés
+          <i class="fas fa-plane-departure"></i> leave
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('tasks') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Tasks
+          <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
       <li class="nav-item">
@@ -296,7 +296,7 @@
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Déconnexion
+          <i class="fas fa-sign-out-alt"></i> Sign Out
         </a>
       </li>
     </ul>
@@ -307,7 +307,7 @@
 <div class="main-content">
   <div class="stats-container">
     <h2 class="mb-4 text-warning fw-bold">
-      <i class="fas fa-chart-pie me-2"></i>Tableau de Bord Statistique
+      <i class="fas fa-chart-pie me-2"></i>Statistics table
     </h2>
 
   </div>
@@ -315,10 +315,10 @@
     <!-- Navigation par onglets -->
     <div class="stats-tabs">
       <div class="stats-tab active" data-target="hours-tab">
-        <i class="fas fa-clock me-2"></i>Heures/Jour
+        <i class="fas fa-clock me-2"></i>Hours/day
       </div>
       <div class="stats-tab" data-target="productivity-tab">
-        <i class="fas fa-trend-up me-2"></i>Productivité
+        <i class="fas fa-trend-up me-2"></i>Productivity
       </div>
       <div class="stats-tab" data-target="ranking-tab">
         <i class="fas fa-trophy me-2"></i>Classement
@@ -331,11 +331,11 @@
         <div class="row align-items-center">
           <div class="col-md-4 text-center mb-4 mb-md-0">
             <div class="average-hours">7.2h</div>
-            <div class="text-warning mb-3">Moyenne quotidienne</div>
+            <div class="text-warning mb-3">Daily Average</div>
             <div class="d-flex justify-content-center gap-3">
               <div class="text-center">
                 <div class="fw-bold">+12%</div>
-                <small>vs semaine dernière</small>
+                <small>vs last week</small>
               </div>
               <div class="text-center">
                 <div class="fw-bold">35h</div>

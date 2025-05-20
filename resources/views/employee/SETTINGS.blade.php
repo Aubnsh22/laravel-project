@@ -266,7 +266,7 @@
       <ul id="elements" class="nav flex-column mb-auto">
         <li class="nav-item">
           <a href="{{ url('Clock_In') }}" class="nav-link">
-            <i class="fas fa-clock"></i> Clock In
+            <i class="fas fa-clock"></i> Clock In/Out
           </a>
         </li>
         <li class="nav-item">
@@ -286,7 +286,7 @@
         </li>
         <li class="nav-item">
         <a href="{{ url('tasks') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Tasks
+          <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
         <li class="nav-item">

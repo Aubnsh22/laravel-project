@@ -256,22 +256,22 @@
       </li>
       <li class="nav-item">
         <a href="{{ url('history') }}" class="nav-link">
-          <i class="fas fa-history"></i> Historique
+          <i class="fas fa-history"></i> History
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('stats') }}" class="nav-link">
-          <i class="fas fa-chart-bar"></i> Statistiques
+          <i class="fas fa-chart-bar"></i> Statistics
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('leave') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Congés
+          <i class="fas fa-plane-departure"></i> leave
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('tasks') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Tasks
+          <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
       <li class="nav-item">
@@ -291,7 +291,7 @@
       </li>
       <li class="nav-item">
         <a href="{{ url('logout') }}" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Déconnexion
+          <i class="fas fa-sign-out-alt"></i> Sign Out
         </a>
       </li>
     </ul>

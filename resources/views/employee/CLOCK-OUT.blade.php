@@ -287,7 +287,7 @@
       </li>
       <li class="nav-item">
         <a href="{{ url('tasks') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Tasks
+          <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>
       <li class="nav-item">
