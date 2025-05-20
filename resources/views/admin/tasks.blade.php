@@ -248,8 +248,8 @@
           <i class="fas fa-envelope"></i> Message
         </a>
       </li>
-      <li class="nav-item">
-        <a href="{{ url('settings') }}" class="nav-link">
+     <li class="nav-item">
+        <a href="{{ url('settingsadmin') }}" class="nav-link">
           <i class="fas fa-cog"></i> Settings
         </a>
       </li>

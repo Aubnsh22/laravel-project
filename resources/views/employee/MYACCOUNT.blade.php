@@ -78,7 +78,6 @@
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
-      margin-top:   140px
     }
 
     /* User Card */
@@ -102,6 +101,15 @@
       margin: 0 auto;
     }
 
+    .hero-section {
+      background: var(--gold-gradient);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+      color: #000;
+      box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
+    }
+
     .account-section {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
@@ -110,13 +118,32 @@
       border: 1px solid rgba(255, 179, 0, 0.2);
     }
 
-    .account-header {
-      background: var(--gold-gradient);
-      border-radius: 12px;
-      padding: 20px;
+    .stats-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 179, 0, 0.2);
       margin-bottom: 25px;
-      color: #000;
-      box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
+      gap: 5px;
+    }
+
+    .stats-tab {
+      padding: 12px 25px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.7);
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      font-weight: 500;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .stats-tab:hover {
+      color: #ffc107;
+      background: rgba(255, 179, 0, 0.1);
+    }
+
+    .stats-tab.active {
+      color: #ffc107;
+      border-bottom: 3px solid #ffc107;
+      background: rgba(255, 179, 0, 0.1);
     }
 
     .info-group {
@@ -133,6 +160,20 @@
       font-size: 1.1rem;
       font-weight: 500;
       color: #ffffff;
+    }
+
+    .stats-content {
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .stats-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Search & Notification */
@@ -209,23 +250,23 @@
 
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ url('clock_in') }}" class="nav-link">
-          <i class="fas fa-clock"></i> Clock In/Out
+        <a href="{{ url('Clock_In') }}" class="nav-link">
+          <i class="fas fa-clock"></i> Clock In
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('history') }}" class="nav-link">
-          <i class="fas fa-history"></i> History
+          <i class="fas fa-history"></i> Historique
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('stats') }}" class="nav-link">
-          <i class="fas fa-chart-bar"></i> Stats
+          <i class="fas fa-chart-bar"></i> Statistiques
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('leave') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> Leave
+          <i class="fas fa-plane-departure"></i> Congés
         </a>
       </li>
       <li class="nav-item">
@@ -244,13 +285,13 @@
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="#" class="nav-link active">
+        <a href="{{ url('myaccount') }}" class="nav-link active">
           <i class="fas fa-user-circle"></i> My Account
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
+        <a href="{{ url('logout') }}" class="nav-link">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
         </a>
       </li>
     </ul>
@@ -259,43 +300,62 @@
 
 <!-- Main Content -->
 <div class="main-content">
-  
+  <div class="account-container">
+    
 
     
 
     <div class="account-section">
-      <div class="row">
-        <div class="col-md-6 info-group">
-          <div class="info-label">Full Name</div>
-          <div class="info-value">Saad Nassih</div>
+      <h4 class="mb-4">Account Information</h4>
+
+      <div class="stats-tabs">
+        <div class="stats-tab active" data-target="personal-tab">
+          <i class="fas fa-user me-2"></i>Personal Info
         </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Employee ID</div>
-          <div class="info-value">EMP-12345</div>
+        <div class="stats-tab" data-target="work-tab">
+          <i class="fas fa-briefcase me-2"></i>Work Info
         </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Email</div>
-          <div class="info-value">saad.nassih@example.com</div>
+      </div>
+
+      <div id="personal-tab" class="stats-content active">
+        <div class="row">
+          <div class="col-md-6 info-group">
+            <div class="info-label">Full Name</div>
+            <div class="info-value">{{ $user->full_name }}</div>
+          </div>
+          <div class="col-md-6 info-group">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ $user->email }}</div>
+          </div>
+          <div class="col-md-6 info-group">
+            <div class="info-label">Phone Number</div>
+            <div class="info-value">{{ $user->phone_number }}</div>
+          </div>
         </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Phone Number</div>
-          <div class="info-value">+212 600 123 456</div>
-        </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Department</div>
-          <div class="info-value">Information Technology</div>
-        </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Role</div>
-          <div class="info-value">Employee</div>
-        </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Hire Date</div>
-          <div class="info-value">January 15, 2020</div>
-        </div>
-        <div class="col-md-6 info-group">
-          <div class="info-label">Work Location</div>
-          <div class="info-value">Main Office, Casablanca</div>
+      </div>
+
+      <div id="work-tab" class="stats-content">
+        <div class="row">
+          <div class="col-md-6 info-group">
+            <div class="info-label">Employee ID</div>
+            <div class="info-value">{{ $user->employee_id }}</div>
+          </div>
+          <div class="col-md-6 info-group">
+            <div class="info-label">Department</div>
+            <div class="info-value">{{ $user->department }}</div>
+          </div>
+          <div class="col-md-6 info-group">
+            <div class="info-label">Role</div>
+            <div class="info-value">{{ $user->role }}</div>
+          </div>
+          <div class="col-md-6 info-group">
+            <div class="info-label">Hire Date</div>
+            <div class="info-value">{{ $user->hire_date ? $user->hire_date->format('F d, Y') : '' }}</div>
+          </div>
+          <div class="col-md-6 info-group">
+            <div class="info-label">Work Location</div>
+            <div class="info-value">{{ $user->work_location }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -306,15 +366,15 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>employee</small>
+      <h6 class="fw-bold mb-0">{{ $user->full_name }}</h6>
+      <small>{{ $user->role }}</small>
     </div>
     <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
   </div>
 
   <div class="section-label">Date</div>
   <div class="d-flex align-items-center gap-2 mb-3">
-    <div class="date-box text-center comis">
+    <div class="date-box text-center">
       <div class="fw-bold fs-5" id="year"></div>
       <div class="fs-6" id="month"></div>
       <div class="fs-3 fw-bold" id="day"></div>
@@ -337,18 +397,28 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  // Tab Navigation
+  document.querySelectorAll('.stats-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.stats-content').forEach(c => c.classList.remove('active'));
+      
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.target).classList.add('active');
+    });
+  });
+
   // Function to update date and time
   function updateDateTime() {
     const now = new Date();
     
-    // Update date
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
     
-    // Update time
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
@@ -360,10 +430,8 @@
     document.getElementById('ampm').textContent = ampm;
   }
 
-  // Immediate and periodic update
   updateDateTime();
   setInterval(updateDateTime, 60000);
 </script>
-
 </body>
 </html>

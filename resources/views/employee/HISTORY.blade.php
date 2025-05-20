@@ -104,7 +104,7 @@
     /* Search Form */
     .search-form .form-control, 
     .search-form .form-select {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 251, 0.1);
       border: none;
       color: white;
     }
@@ -235,6 +235,41 @@
       border-radius: 15px;
       padding: 10px;
       color: black;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-box::-webkit-scrollbar-track {
+      background: rgba(186, 186, 186, 0.2);
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb {
+      background: white;
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb:hover {
+      background: white;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid rgba(255, 179, 0, 0.3);
+      border-radius: 8px;
+    }
+
+    .message-item:last-child {
+      margin-bottom: 0;
     }
 
     .user-avatar {
@@ -242,6 +277,29 @@
       height: 40px;
       object-fit: cover;
       border-radius: 50%;
+    }
+
+    /* Dropdown Styles */
+    .profile-dropdown .dropdown-menu {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 179, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    .profile-dropdown .dropdown-item {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 10px 15px;
+      transition: all 0.3s;
+    }
+
+    .profile-dropdown .dropdown-item:hover {
+      background: rgba(255, 179, 0, 0.15);
+      color: #ffc107;
+    }
+
+    .profile-dropdown .dropdown-item i {
+      margin-right: 10px;
     }
   </style>
 </head>
@@ -251,14 +309,14 @@
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
 
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ url('Clock_In') }}" class="nav-link">
-          <i class="fas fa-clock"></i> Clock In
+        <a href="{{ url('Clock-In') }}" class="nav-link">
+          <i class="fas fa-clock"></i> Clock In/Out
         </a>
       </li>
       <li class="nav-item">
@@ -297,9 +355,12 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
-        </a>
+        <form action="{{ route('logout') }}" method="POST">
+          @csrf
+          <button type="submit" class="nav-link btn btn-link">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </form>
       </li>
     </ul>
   </div>
@@ -308,8 +369,6 @@
 <!-- Main Content -->
 <div class="main-content">
   <div class="history-container">
-    
-
     <div class="hero-section">
       <h1 class="fw-bold mb-3">Track Your<br>Attendance History</h1>
       <button class="btn btn-dark fw-semibold me-3">View Details</button>
@@ -353,6 +412,19 @@
       </div>
     </form>
 
+    <!-- Current Clock-In Status -->
+    @if($isClockedIn)
+      <div class="alert alert-success">
+        You are currently clocked in since {{ \Carbon\Carbon::parse($currentAttendance->clock_in)->format('h:i A') }}.
+        <?php
+          $clockIn = \Carbon\Carbon::parse($currentAttendance->clock_in);
+          $now = \Carbon\Carbon::now();
+          $ongoingHours = $clockIn->diffInHours($now);
+        ?>
+        Ongoing hours: {{ $ongoingHours }}h
+      </div>
+    @endif
+
     <!-- Dynamic Table -->
     <div class="table-responsive">
       <table class="dynamic-table">
@@ -367,101 +439,95 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>2023-05-15</td>
-            <td>Monday</td>
-            <td><span class="badge-present">Present</span></td>
-            <td>08:58 AM</td>
-            <td>05:02 PM</td>
-            <td>8.1h</td>
-          </tr>
-          <tr>
-            <td>2023-05-16</td>
-            <td>Tuesday</td>
-            <td><span class="badge-present">Present</span></td>
-            <td>09:05 AM</td>
-            <td>05:15 PM</td>
-            <td>8.2h</td>
-          </tr>
-          <tr>
-            <td>2023-05-17</td>
-            <td>Wednesday</td>
-            <td><span class="badge-absent">Absent</span></td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td>2023-05-18</td>
-            <td>Thursday</td>
-            <td><span class="badge-present">Present</span></td>
-            <td>08:45 AM</td>
-            <td>04:50 PM</td>
-            <td>8.1h</td>
-          </tr>
-          <tr>
-            <td>2023-05-19</td>
-            <td>Friday</td>
-            <td><span class="badge-present">Present</span></td>
-            <td>09:10 AM</td>
-            <td>04:45 PM</td>
-            <td>7.6h</td>
-          </tr>
-          <tr>
-            <td>2023-05-20</td>
-            <td>Saturday</td>
-            <td><span class="badge-weekend">Weekend</span></td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td>2023-05-21</td>
-            <td>Sunday</td>
-            <td><span class="badge-weekend">Weekend</span></td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
+          @forelse ($attendances as $attendance)
+            <tr>
+              <td>{{ $attendance->date->format('Y-m-d') }}</td>
+              <td>{{ $attendance->date->format('l') }}</td>
+              <td>
+                @if ($attendance->clock_in && $attendance->clock_out)
+                  <span class="badge-present">Present</span>
+                @elseif ($attendance->clock_in && !$attendance->clock_out)
+                  <span class="badge-present">In Progress</span>
+                @else
+                  <span class="badge-absent">Incomplete</span>
+                @endif
+              </td>
+              <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('h:i A') : '-' }}</td>
+              <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('h:i A') : '-' }}</td>
+              <td>
+                @if ($attendance->clock_in && !$attendance->clock_out)
+                  <?php
+                    $clockIn = \Carbon\Carbon::parse($attendance->clock_in);
+                    $now = \Carbon\Carbon::now();
+                    $ongoingHours = $clockIn->diffInHours($now);
+                  ?>
+                  {{ $ongoingHours }}h (In Progress)
+                @else
+                  {{ $attendance->hoursWorked() > 0 ? number_format($attendance->hoursWorked(), 1) . 'h' : '-' }}
+                @endif
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="6" class="text-center">No attendance records found.</td>
+            </tr>
+          @endforelse
         </tbody>
       </table>
     </div>
 
-    <!-- Summary Card -->
+    <!-- Weekly Summary -->
+    <?php
+      $daysWorked = $attendances->filter(function ($attendance) {
+        return $attendance->clock_in && $attendance->clock_out;
+      })->count();
+      $totalHours = $attendances->sum(function ($attendance) {
+        if ($attendance->clock_in && !$attendance->clock_out) {
+          return \Carbon\Carbon::parse($attendance->clock_in)->diffInHours(\Carbon\Carbon::now());
+        }
+        return $attendance->hoursWorked();
+      });
+      $weeklyTarget = $attendances->sum->expectedHours();
+      $targetAchieved = $weeklyTarget > 0 ? ($totalHours / $weeklyTarget) * 100 : 0;
+      $dailyAvg = $daysWorked > 0 ? $totalHours / $daysWorked : 0;
+      $daysAbsent = $attendances->filter(function ($attendance) {
+        return !$attendance->clock_in || !$attendance->clock_out;
+      })->count();
+    ?>
     <div class="summary-card">
       <div class="row">
         <div class="col-md-6">
-          <h5 class="text-warning mb-3">Weekly Summary</h5>
+          <h5 class="text-warning mb-3">Summary</h5>
           <div class="row">
             <div class="col-6 text-center mb-3">
-              <div class="fs-4 fw-bold">4</div>
+              <div class="fs-4 fw-bold">{{ $daysWorked }}</div>
               <small class="text-muted">Days Worked</small>
             </div>
             <div class="col-6 text-center mb-3">
-              <div class="fs-4 fw-bold">31.6h</div>
+              <div class="fs-4 fw-bold">{{ number_format($totalHours, 1) }}h</div>
               <small class="text-muted">Total Hours</small>
             </div>
             <div class="col-6 text-center">
-              <div class="fs-4 fw-bold">79%</div>
+              <div class="fs-4 fw-bold">{{ number_format($targetAchieved, 0) }}%</div>
               <small class="text-muted">Target Achieved</small>
             </div>
             <div class="col-6 text-center">
-              <div class="fs-4 fw-bold">8.1h</div>
+              <div class="fs-4 fw-bold">{{ number_format($dailyAvg, 1) }}h</div>
               <small class="text-muted">Daily Avg</small>
             </div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="d-flex justify-content-between mb-2">
-            <span>Weekly Target: 40h</span>
-            <span>79%</span>
+            <span>Target: {{ number_format($weeklyTarget, 1) }}h</span>
+            <span>{{ number_format($targetAchieved, 0) }}%</span>
           </div>
           <div class="progress" style="height: 10px;">
-            <div class="progress-bar" style="width: 79%; background: var(--gold-gradient);"></div>
+            <div class="progress-bar" style="width: {{ $targetAchieved }}%; background: var(--gold-gradient);"></div>
           </div>
           <div class="mt-3 text-center">
             <span class="badge bg-warning text-dark me-2">
-              <i class="fas fa-info-circle me-1"></i> 1 day absent this week
+              <i class="fas fa-info-circle me-1"></i> {{ $daysAbsent }} day(s) incomplete
             </span>
           </div>
         </div>
@@ -474,10 +540,17 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>employee</small>
+      <h6 class="fw-bold mb-0">{{ Auth::user()->full_name }}</h6>
+      <small>{{ Auth::user()->role }}</small>
     </div>
-    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
+    <div class="profile-dropdown dropdown">
+      <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ url('myaccount') }}"><i class="fas fa-user-circle"></i> My Account</a></li>
+        <li><a class="dropdown-item" href="{{ url('logout') }}"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
+        <li><a class="dropdown-item" href="{{ url('set-profile-picture') }}"><i class="fas fa-camera"></i> Set Profile Picture</a></li>
+      </ul>
+    </div>
   </div>
 
   <div class="section-label">Date</div>
@@ -495,28 +568,39 @@
     </div>
   </div>
 
-  <div class="section-label">Message</div>
-  <div class="message-box d-flex align-items-start gap-2">
-    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-    <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-      <div>Khdm mgwd wla sir t9wd</div>
-    </div>
+  <div class="section-label">Messages</div>
+  <div class="message-box">
+    @forelse ($messages as $message)
+      <div class="message-item">
+        <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+        <div>
+          <div class="fw-bold small">
+            {{ $message->sender->full_name ?? 'Admin' }}
+            <span class="text-muted">
+              • {{ $message->sent_at_human }}
+            </span>
+          </div>
+          <div>{{ $message->content }}</div>
+        </div>
+      </div>
+    @empty
+      <div>No messages available.</div>
+    @endforelse
   </div>
 </div>
 
 <script>
-  // Fonction pour mettre à jour l'heure et la date
+  // Function to update date and time
   function updateDateTime() {
-    const now = new Date();
+    const now = new Date('2025-05-20T00:54:00+01:00'); // Updated to 12:54 AM
     
-    // Mise à jour de la date
+    // Update date
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
     
-    // Mise à jour de l'heure
+    // Update time
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
@@ -528,86 +612,12 @@
     document.getElementById('ampm').textContent = ampm;
   }
 
-  // Mise à jour immédiate et périodique
+  // Immediate and periodic update
   updateDateTime();
   setInterval(updateDateTime, 60000);
-
-  // Fonction pour générer des données aléatoires (simulation)
-  function generateRandomHistory() {
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const tbody = document.querySelector('.dynamic-table tbody');
-    tbody.innerHTML = '';
-
-    const today = new Date();
-    const currentDay = today.getDay(); // 0 (Sunday) to 6 (Saturday)
-    
-    for (let i = 0; i < 7; i++) {
-      const date = new Date();
-      date.setDate(today.getDate() - (currentDay - i));
-      
-      const isWeekend = i >= 5; // Saturday (5) and Sunday (6)
-      const isAbsent = !isWeekend && Math.random() < 0.1; // 10% chance d'absence
-      
-      const row = document.createElement('tr');
-      
-      // Date
-      const dateCell = document.createElement('td');
-      dateCell.textContent = date.toISOString().split('T')[0];
-      row.appendChild(dateCell);
-      
-      // Day
-      const dayCell = document.createElement('td');
-      dayCell.textContent = days[i];
-      row.appendChild(dayCell);
-      
-      // Status
-      const statusCell = document.createElement('td');
-      if (isWeekend) {
-        statusCell.innerHTML = '<span class="badge-weekend">Weekend</span>';
-      } else if (isAbsent) {
-        statusCell.innerHTML = '<span class="badge-absent">Absent</span>';
-      } else {
-        statusCell.innerHTML = '<span class="badge-present">Present</span>';
-      }
-      row.appendChild(statusCell);
-      
-      // Clock In/Out
-      const clockInCell = document.createElement('td');
-      const clockOutCell = document.createElement('td');
-      const hoursCell = document.createElement('td');
-      
-      if (isWeekend || isAbsent) {
-        clockInCell.textContent = '-';
-        clockOutCell.textContent = '-';
-        hoursCell.textContent = '-';
-      } else {
-        const clockInHour = 8 + Math.floor(Math.random() * 2); // Entre 8h et 9h
-        const clockInMinute = Math.floor(Math.random() * 60);
-        const clockOutHour = 16 + Math.floor(Math.random() * 2); // Entre 16h et 17h
-        const clockOutMinute = Math.floor(Math.random() * 60);
-        
-        const clockInTime = `${clockInHour.toString().padStart(2, '0')}:${clockInMinute.toString().padStart(2, '0')} AM`;
-        const clockOutTime = `${clockOutHour.toString().padStart(2, '0')}:${clockOutMinute.toString().padStart(2, '0')} PM`;
-        
-        clockInCell.textContent = clockInTime;
-        clockOutCell.textContent = clockOutTime;
-        
-        // Calcul des heures travaillées
-        const totalHours = (clockOutHour + 12) - clockInHour + (clockOutMinute - clockInMinute) / 60;
-        hoursCell.textContent = totalHours.toFixed(1) + 'h';
-      }
-      
-      row.appendChild(clockInCell);
-      row.appendChild(clockOutCell);
-      row.appendChild(hoursCell);
-      
-      tbody.appendChild(row);
-    }
-  }
-
-  // Générer des données aléatoires au chargement
-  document.addEventListener('DOMContentLoaded', generateRandomHistory);
 </script>
 
+<!-- Bootstrap JS for dropdown functionality -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

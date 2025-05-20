@@ -280,12 +280,12 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('history') }}" class="nav-link">
+        <a href="{{ route('employee.history') }}" class="nav-link">
           <i class="fas fa-history"></i> History
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('stats') }}" class="nav-link">
+        <a href="{{ route('employee.stats') }}" class="nav-link">
           <i class="fas fa-chart-bar"></i> Stats
         </a>
       </li>
@@ -295,7 +295,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('tasks') }}" class="nav-link active">
+        <a href="{{ route('employee.tasks') }}" class="nav-link active">
           <i class="fas fa-tasks"></i> Tasks
         </a>
       </li>

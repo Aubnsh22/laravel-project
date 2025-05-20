@@ -1,7 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 use App\Models\User;
+use App\Models\Leave_request;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -9,6 +10,8 @@ use Illuminate\Support\Str;
 use App\Mail\WelcomeEmployee;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use App\Models\ExpectedHours;
 
 class AuthentificationController extends Controller
 {
@@ -23,10 +26,10 @@ class AuthentificationController extends Controller
             'username' => $request->username,
             'password' => $request->password
         ])) {
-            $user = Auth::user(); // Récupérer l'utilisateur connecté
-            
-            return $user->role === 'Administrateur' 
-                ? redirect()->route('admin.tasks') 
+            $request->session()->regenerate();
+            $user = Auth::user();
+            return $user->role === 'admin'
+                ? redirect()->route('admin.tasks')
                 : redirect()->route('Clock_In');
         }
 
@@ -56,23 +59,19 @@ class AuthentificationController extends Controller
                 $exists = User::where('employee_id', $employeeId)->exists();
             } while ($exists);
 
-            // Générer un mot de passe en clair
             $plainPassword = Str::random(12);
             $validatedData['employee_id'] = $employeeId;
             $validatedData['password'] = Hash::make($plainPassword);
 
-            // Créer l'employé
             $user = User::create($validatedData);
 
-            // Envoyer l'email avec les informations de connexion
             try {
                 Mail::to($validatedData['email'])->send(new WelcomeEmployee($validatedData, $plainPassword));
             } catch (\Exception $e) {
                 Log::error('Failed to send welcome email to ' . $validatedData['email'] . ': ' . $e->getMessage());
-                // Continuer malgré l'erreur d'envoi d'email
             }
 
-            return redirect()->route('admin.Employes')->with('success', 'Employee added successfully.');
+            return redirect()->route('admin.employees')->with('success', 'Employee added successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to create employee: ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Failed to add employee: ' . $e->getMessage()]);
@@ -90,10 +89,10 @@ class AuthentificationController extends Controller
         try {
             $employee = User::findOrFail($id);
             $employee->delete();
-            return redirect()->route('admin.Employes')->with('success', 'Employee deleted successfully.');
+            return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to delete employee: ' . $e->getMessage());
-            return redirect()->route('admin.Employes')->with('error', 'Failed to delete employee.');
+            return redirect()->route('admin.employees')->with('error', 'Failed to delete employee.');
         }
     }
 
@@ -115,10 +114,241 @@ class AuthentificationController extends Controller
 
             $employee->update($validatedData);
 
-            return redirect()->route('admin.Employes')->with('success', 'Employee updated successfully.');
+            return redirect()->route('admin.employees')->with('success', 'Employee updated successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to update employee: ' . $e->getMessage());
-            return redirect()->route('admin.Employes')->with('error', 'Failed to update employee: ' . $e->getMessage());
+            return redirect()->route('admin.employees')->with('error', 'Failed to update employee: ' . $e->getMessage());
         }
     }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'currentPassword' => 'required|string',
+            'newPassword' => 'required|string|min:8',
+            'confirmPassword' => 'required|string|same:newPassword',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->currentPassword, $user->password)) {
+            return back()->withErrors(['currentPassword' => 'The current password is incorrect.']);
+        }
+
+        $user->password = Hash::make($request->newPassword);
+        $user->save();
+
+        return redirect()->route('employee.account')->with('success', 'Password updated successfully.');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/signin');
+    }
+
+    public function storeLeaveRequest(Request $request)
+    {
+        $validatedData = $request->validate([
+            'leave_type' => 'required|string|in:vacation,sick,personal',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'message' => 'required|string|max:1000',
+            'certificate' => 'nullable|required_if:leave_type,sick|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        try {
+            $data = [
+                'user_id' => Auth::id(),
+                'leave_type' => $validatedData['leave_type'],
+                'start_date' => $validatedData['start_date'],
+                'end_date' => $validatedData['end_date'],
+                'message' => $validatedData['message'],
+                'status' => 'pending',
+            ];
+
+            if ($request->hasFile('certificate')) {
+                $path = $request->file('certificate')->store('certificates', 'public');
+                $data['certificate_path'] = $path;
+            }
+
+            Leave_request::create($data);
+
+            return redirect()->route('employee.leave')->with('success', 'Leave request submitted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to submit leave request: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Failed to submit leave request.']);
+        }
+    }
+
+    public function listRequests()
+    {
+        $requests = Leave_request::with('user')->get();
+        return view('admin.Requests', compact('requests'));
+    }
+
+    public function approveRequest(Request $request, $id)
+    {
+        try {
+            $leaveRequest = Leave_request::findOrFail($id);
+            if ($leaveRequest->status !== 'pending') {
+                return redirect()->route('requests')->with('error', 'Request is already processed.');
+            }
+            $leaveRequest->update(['status' => 'approved']);
+            return redirect()->route('requests')->with('success', 'Request approved successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to approve request: ' . $e->getMessage());
+            return redirect()->route('requests')->with('error', 'Failed to approve request.');
+        }
+    }
+
+    public function denyRequest(Request $request, $id)
+    {
+        try {
+            $leaveRequest = Leave_request::findOrFail($id);
+            if ($leaveRequest->status !== 'pending') {
+                return redirect()->route('requests')->with('error', 'Request is already processed.');
+            }
+            $leaveRequest->update(['status' => 'denied']);
+            return redirect()->route('requests')->with('success', 'Request denied successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to deny request: ' . $e->getMessage());
+            return redirect()->route('requests')->with('error', 'Failed to deny request.');
+        }
+    }
+
+    public function myAccount()
+    {
+        $user = Auth::user();
+        return view('admin.admacc', compact('user'));
+    }
+
+    public function showSendMessageForm()
+    {
+        $users = User::all();
+        return view('admin.message', compact('users'));
+    }
+
+    public function storeMessage(Request $request)
+    {
+        $validatedData = $request->validate([
+            'recipientType' => 'required|in:all,name,department',
+            'recipientName' => 'required_if:recipientType,name|exists:users,id',
+            'recipientDept' => 'required_if:recipientType,department|in:Information Technology,Creative,Operations,Human Resources',
+            'messageContent' => 'required|string|max:1000',
+        ]);
+
+        $recipients = [];
+        if ($validatedData['recipientType'] === 'all') {
+            $recipients = User::pluck('id')->toArray();
+        } elseif ($validatedData['recipientType'] === 'name') {
+            $recipients = [$validatedData['recipientName']];
+        } else {
+            $recipients = [json_encode([$validatedData['recipientDept']])];
+        }
+
+        Message::create([
+            'sender_id' => Auth::id(),
+            'recipients' => json_encode($recipients),
+            'content' => $validatedData['messageContent'],
+        ]);
+
+        return redirect()->route('send.message')->with('success', 'Message sent successfully.');
+    }
+
+    public function getUserMessages()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return collect([]);
+        }
+        $messages = Message::with('sender')
+            ->where(function ($query) use ($user) {
+                $query->whereJsonContains('recipients', $user->id)
+                      ->orWhereJsonContains('recipients', json_encode([$user->department]))
+                      ->orWhere('recipients', json_encode(User::pluck('id')->toArray()));
+            })
+            ->orderBy('sent_at', 'desc')
+            ->take(5)
+            ->get();
+
+        return $messages;
+    }
+
+    public function showSetProfilePictureForm()
+    {
+        return view('employee.set-profile-picture');
+    }
+
+    public function storeProfilePicture(Request $request)
+    {
+        $request->validate([
+            'profile_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $user = Auth::user();
+        if ($request->hasFile('profile_photo')) {
+            // Delete old photo if it exists
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+                Log::info('Old photo deleted: ' . $user->profile_photo_path);
+            }
+
+            // Store new photo with a unique name
+            $fileName = time() . '_' . $request->file('profile_photo')->getClientOriginalName();
+            $path = $request->file('profile_photo')->storeAs('profile_photos', $fileName, 'public');
+            Log::info('New photo stored at: ' . $path);
+
+            // Update user with the new path
+            $user->profile_photo_path = $path;
+            if ($user->save()) {
+                Log::info('User profile_photo_path updated to: ' . $user->profile_photo_path);
+            } else {
+                Log::error('Failed to save user profile_photo_path');
+                return redirect()->route('set.profile.picture')->with('error', 'Failed to update profile picture. Please try again.');
+            }
+        } else {
+            Log::warning('No file uploaded in the request');
+            return redirect()->route('set.profile.picture')->with('error', 'No file was uploaded.');
+        }
+
+        return redirect()->route('Clock_In')->with('success', 'Profile picture updated successfully.');
+    }
+    public function showSetExpectedHoursForm()
+{
+    return view('admin.set-expected-hours');
+}
+
+public function storeExpectedHours(Request $request)
+{
+    $validatedData = $request->validate([
+        'week_start_date' => 'required|date',
+        'monday_hours' => 'required|numeric|min:0|max:24',
+        'tuesday_hours' => 'required|numeric|min:0|max:24',
+        'wednesday_hours' => 'required|numeric|min:0|max:24',
+        'thursday_hours' => 'required|numeric|min:0|max:24',
+        'friday_hours' => 'required|numeric|min:0|max:24',
+        'saturday_hours' => 'required|numeric|min:0|max:24',
+        'sunday_hours' => 'required|numeric|min:0|max:24',
+    ]);
+
+    // Ensure the week_start_date is a Monday
+    $weekStartDate = \Carbon\Carbon::parse($validatedData['week_start_date']);
+    if ($weekStartDate->dayOfWeek !== \Carbon\Carbon::MONDAY) {
+        return redirect()->back()->with('error', 'Week start date must be a Monday.');
+    }
+
+    // Check if an entry for this week already exists
+    $existing = ExpectedHours::where('week_start_date', $weekStartDate->toDateString())->first();
+    if ($existing) {
+        $existing->update($validatedData);
+        return redirect()->route('set.expected.hours')->with('success', 'Expected hours updated successfully.');
+    }
+
+    // Create a new entry
+    ExpectedHours::create($validatedData);
+    return redirect()->route('set.expected.hours')->with('success', 'Expected hours set successfully.');
+}
 }
