@@ -103,15 +103,15 @@ class AdminController extends Controller
         return view('admin.admacc', ['user' => $user]);
     }
 
-    ///blackllist
-    public function adminacc()
-    {
-        if (!View::exists('admin.admacc')) {
-            \Log::error('View admin.admacc not found.');
-            return redirect()->route('dashboard')->with('error', 'Account view not found.');
-        }
+    //blackllist
+    //  public function adminacc()
+    // {
+    //     if (!View::exists('admin.admacc')) {
+    //         \Log::error('View admin.admacc not found.');
+    //         return redirect()->route('dashboard')->with('error', 'Account view not found.');
+    //     }
 
-        $user = Auth::user();
-        return view('admin.admacc', ['user' => $user]);
-    }
+    //     $user = Auth::user();
+    //     return view('admin.admacc', ['user' => $user]);
+    // }
 }

@@ -35,9 +35,9 @@ class AuthentificationController extends Controller
                 Auth::logout(); // Log the user out immediately
                 return redirect()->route('signin')->with('error', 'Your account has been blocked. Please contact the administrator.');
             }
-
-            
             $request->session()->regenerate();
+
+
             return $user->role === 'admin'
                 ? redirect()->route('admin.tasks')
                 : redirect()->route('Clock_In');
@@ -385,8 +385,6 @@ class AuthentificationController extends Controller
 
     public function blacklist()
     {
-
-
         $blacklistedUsers = User::where('status', 'blocked')->get();
         $availableUsers = User::where('status', 'active')->get();
         return view('admin.blacklist', compact('blacklistedUsers', 'availableUsers'));
