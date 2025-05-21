@@ -16,13 +16,13 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        if (!View::exists('admin.Employees')) {
+        if (!View::exists('admin.dashboard')) {
             \Log::error('View admin.Employees not found.');
             return redirect()->route('welcome')->with('error', 'Employee view not found.');
         }
 
         $user = Auth::user();
-        return view('admin.Employees', ['user' => $user]);
+        return view('admin.dashboard', ['user' => $user]);
     }
 
     public function employes()
@@ -92,6 +92,18 @@ class AdminController extends Controller
         return view('admin.settings', ['user' => $user]);
     }
 
+    public function adminacc()
+    {
+        if (!View::exists('admin.admacc')) {
+            \Log::error('View admin.admacc not found.');
+            return redirect()->route('dashboard')->with('error', 'Account view not found.');
+        }
+
+        $user = Auth::user();
+        return view('admin.admacc', ['user' => $user]);
+    }
+
+    ///blackllist
     public function adminacc()
     {
         if (!View::exists('admin.admacc')) {

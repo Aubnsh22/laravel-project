@@ -20,9 +20,15 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->string('department')->nullable();
             $table->string('role')->default('employee'); // 'employee' or 'admin'
+            
+            $table->enum('status', ['active', 'blocked'])->default('active');
+
+
             $table->date('hire_date')->nullable();
             $table->string('work_location')->nullable();
             $table->string('password');
+
+
         $table->string('profile_photo_path')->nullable();
             $table->rememberToken();
             $table->timestamps();

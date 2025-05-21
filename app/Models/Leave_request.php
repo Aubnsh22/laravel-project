@@ -2,22 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Leave_request extends Model
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'leave_requests';
+    use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'leave_type',
@@ -28,9 +19,8 @@ class Leave_request extends Model
         'status',
     ];
 
-    /**
-     * Get the user that owns the leave request.
-     */
+    protected $dates = ['start_date', 'end_date'];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use App\Models\Leave_request;
 use App\Models\Message;
@@ -26,8 +28,16 @@ class AuthentificationController extends Controller
             'username' => $request->username,
             'password' => $request->password
         ])) {
-            $request->session()->regenerate();
             $user = Auth::user();
+
+            // Check if the user is blocked
+            if ($user->status === 'blocked') {
+                Auth::logout(); // Log the user out immediately
+                return redirect()->route('signin')->with('error', 'Your account has been blocked. Please contact the administrator.');
+            }
+
+            
+            $request->session()->regenerate();
             return $user->role === 'admin'
                 ? redirect()->route('admin.tasks')
                 : redirect()->route('Clock_In');
@@ -185,8 +195,16 @@ class AuthentificationController extends Controller
 
     public function listRequests()
     {
-        $requests = Leave_request::with('user')->get();
+        $requests = Leave_request::with('user')
+            ->where('status', 'pending')
+            ->get();
         return view('admin.Requests', compact('requests'));
+    }
+
+    public function listAllRequests()
+    {
+        $requests = Leave_request::with('user')->get();
+        return view('admin.all-requests', compact('requests'));
     }
 
     public function approveRequest(Request $request, $id)
@@ -316,39 +334,96 @@ class AuthentificationController extends Controller
 
         return redirect()->route('Clock_In')->with('success', 'Profile picture updated successfully.');
     }
+
     public function showSetExpectedHoursForm()
-{
-    return view('admin.set-expected-hours');
-}
-
-public function storeExpectedHours(Request $request)
-{
-    $validatedData = $request->validate([
-        'week_start_date' => 'required|date',
-        'monday_hours' => 'required|numeric|min:0|max:24',
-        'tuesday_hours' => 'required|numeric|min:0|max:24',
-        'wednesday_hours' => 'required|numeric|min:0|max:24',
-        'thursday_hours' => 'required|numeric|min:0|max:24',
-        'friday_hours' => 'required|numeric|min:0|max:24',
-        'saturday_hours' => 'required|numeric|min:0|max:24',
-        'sunday_hours' => 'required|numeric|min:0|max:24',
-    ]);
-
-    // Ensure the week_start_date is a Monday
-    $weekStartDate = \Carbon\Carbon::parse($validatedData['week_start_date']);
-    if ($weekStartDate->dayOfWeek !== \Carbon\Carbon::MONDAY) {
-        return redirect()->back()->with('error', 'Week start date must be a Monday.');
+    {
+        return view('admin.set-expected-hours');
     }
 
-    // Check if an entry for this week already exists
-    $existing = ExpectedHours::where('week_start_date', $weekStartDate->toDateString())->first();
-    if ($existing) {
-        $existing->update($validatedData);
-        return redirect()->route('set.expected.hours')->with('success', 'Expected hours updated successfully.');
+    public function storeExpectedHours(Request $request)
+    {
+        $validatedData = $request->validate([
+            'week_start_date' => 'required|date',
+            'monday_hours' => 'required|numeric|min:0|max:24',
+            'tuesday_hours' => 'required|numeric|min:0|max:24',
+            'wednesday_hours' => 'required|numeric|min:0|max:24',
+            'thursday_hours' => 'required|numeric|min:0|max:24',
+            'friday_hours' => 'required|numeric|min:0|max:24',
+            'saturday_hours' => 'required|numeric|min:0|max:24',
+            'sunday_hours' => 'required|numeric|min:0|max:24',
+        ]);
+
+        // Ensure the week_start_date is a Monday
+        $weekStartDate = \Carbon\Carbon::parse($validatedData['week_start_date']);
+        if ($weekStartDate->dayOfWeek !== \Carbon\Carbon::MONDAY) {
+            return redirect()->back()->with('error', 'Week start date must be a Monday.');
+        }
+
+        // Check if an entry for this week already exists
+        $existing = ExpectedHours::where('week_start_date', $weekStartDate->toDateString())->first();
+        if ($existing) {
+            $existing->update($validatedData);
+            return redirect()->route('set.expected.hours')->with('success', 'Expected hours updated successfully.');
+        }
+
+        // Create a new entry
+        ExpectedHours::create($validatedData);
+        return redirect()->route('set.expected.hours')->with('success', 'Expected hours set successfully.');
     }
 
-    // Create a new entry
-    ExpectedHours::create($validatedData);
-    return redirect()->route('set.expected.hours')->with('success', 'Expected hours set successfully.');
-}
+    public function downloadCertificate($id)
+    {
+        $request = Leave_request::findOrFail($id);
+        if ($request->certificate_path && file_exists(storage_path('app/public/' . $request->certificate_path))) {
+            return response()->download(storage_path('app/public/' . $request->certificate_path));
+        }
+        return redirect()->back()->with('error', 'Certificate not found.');
+    }
+
+
+    //blacklist
+
+    public function blacklist()
+    {
+
+
+        $blacklistedUsers = User::where('status', 'blocked')->get();
+        $availableUsers = User::where('status', 'active')->get();
+        return view('admin.blacklist', compact('blacklistedUsers', 'availableUsers'));
+    }
+
+    public function addToBlacklist(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+        try {
+            $user = User::findOrFail($request->user_id);
+            if ($user->status === 'active') {
+                $user->update(['status' => 'blocked']);
+                return redirect()->route('blacklist')->with('success', 'User added to blacklist successfully.');
+            }
+            return redirect()->route('blacklist')->with('error', 'User is already blacklisted.');
+        } catch (\Exception $e) {
+            Log::error('Failed to add user to blacklist: ' . $e->getMessage());
+            return redirect()->route('blacklist')->with('error', 'Failed to add user to blacklist.');
+        }
+    }
+
+    public function removeFromBlacklist($userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+            if ($user->status === 'blocked') {
+                $user->update(['status' => 'active']);
+                return redirect()->route('blacklist')->with('success', 'User removed from blacklist successfully.');
+            }
+            return redirect()->route('blacklist')->with('error', 'User is not blacklisted.');
+        } catch (\Exception $e) {
+            Log::error('Failed to remove user from blacklist: ' . $e->getMessage());
+            return redirect()->route('blacklist')->with('error', 'Failed to remove user from blacklist.');
+        }
+    }
+
+
 }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>AubCharika - Leave</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.net/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
       --primary-bg: #0a0913;
@@ -97,12 +97,13 @@
       margin: 0 auto;
     }
 
-    .leave-section {
+    .leave-section, .leave-requests-section {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
       border-radius: 12px;
       padding: 30px;
       border: 1px solid rgba(255, 179, 0, 0.2);
+      margin-bottom: 20px;
     }
 
     .hero-section {
@@ -214,6 +215,24 @@
       padding: 10px;
       color: black;
     }
+
+    .leave-request {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 179, 0, 0.2);
+    }
+
+    .leave-request:last-child {
+      border-bottom: none;
+    }
+
+    .leave-actions a {
+      margin-right: 10px;
+      color: #ffc107;
+    }
+
+    .leave-actions a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -221,7 +240,7 @@
   <div class="sidebar d-flex flex-column justify-content-between p-3">
     <div>
       <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-        <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
         <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
       </div>
       <ul id="elements" class="nav flex-column mb-auto">
@@ -276,58 +295,93 @@
   <!-- Main Content -->
   <div class="main-content">
     <div class="leave-container">
-      <h2 class="mb-4 text-warning fw-bold">
-        <i class="fas fa-plane-departure me-2"></i>Leave Management
-      </h2>
+      <div class="hero-section">
+        <h1 class="mb-0"><i class="fas fa-plane-departure"></i> Leave Management</h1>
+      </div>
 
-      <div class="leave-section" id="leaveForm">
-        <h5 class="mb-4">Leave Request Form</h5>
+      <!-- Leave Requests Section with Scrollbar -->
+      <div class="leave-requests-section" style="max-height: 400px; overflow-y: auto;">
+        <h4 class="mb-4 text-warning">Your Leave Requests</h4>
+        @forelse ($leaveRequests as $request)
+          <div class="leave-request">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <p class="mb-1"><strong>Type:</strong> <span class="text-info">{{ $request->leave_type }}</span></p>
+                <p class="mb-1"><strong>Dates:</strong> {{ $request->start_date }} to {{ $request->end_date }}</p>
+                <p class="mb-1"><strong>Message:</strong> {{ $request->message }}</p>
+                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-{{ $request->status == 'pending' ? 'warning' : ($request->status == 'approved' ? 'success' : 'danger') }}">{{ ucfirst($request->status) }}</span></p>
+                <p class="mb-0"><strong>Certificate:</strong> @if($request->certificate_path) <a href="{{ route('request.download', $request->id) }}" class="text-decoration-none">Download</a> @else <span class="text-muted">N/A</span> @endif</p>
+              </div>
+              <div class="leave-actions">
+                <a href="{{ route('leave.edit', $request->id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                <form action="{{ route('leave.delete', $request->id) }}" method="POST" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this request?')">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        @empty
+          <div class="text-center text-muted py-4">No leave requests found.</div>
+        @endforelse
+      </div>
+
+      <!-- Leave Request Form -->
+      <div class="leave-section">
+        <h4 class="mb-4 text-warning">Submit New Leave Request</h4>
         <form id="leaveForm" action="{{ route('leave.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
           
           @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ session('success') }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           @endif
           @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              {{ session('error') }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           @endif
 
-          <div class="mb-3">
+          <div class="mb-4">
             <label for="leaveType" class="form-label">Leave Type</label>
             <select class="form-select" id="leaveType" name="leave_type" required>
-              <option value="">-- Select --</option>
+              <option value="">-- Select Leave Type --</option>
               <option value="vacation">Vacation</option>
               <option value="sick">Sick Leave</option>
               <option value="personal">Personal Leave</option>
             </select>
-            @error('leave_type') <span class="text-danger">{{ $message }}</span> @enderror
+            @error('leave_type') <div class="text-danger small">{{ $message }}</div> @enderror
           </div>
           
-          <div class="mb-3">
+          <div class="mb-4">
             <label for="startDate" class="form-label">Start Date</label>
             <input type="date" class="form-control" id="startDate" name="start_date" required min="{{ now()->format('Y-m-d') }}">
-            @error('start_date') <span class="text-danger">{{ $message }}</span> @enderror
+            @error('start_date') <div class="text-danger small">{{ $message }}</div> @enderror
           </div>
           
-          <div class="mb-3">
+          <div class="mb-4">
             <label for="endDate" class="form-label">End Date</label>
             <input type="date" class="form-control" id="endDate" name="end_date" required min="{{ now()->format('Y-m-d') }}">
-            @error('end_date') <span class="text-danger">{{ $message }}</span> @enderror
+            @error('end_date') <div class="text-danger small">{{ $message }}</div> @enderror
           </div>
 
-          <div class="mb-3">
+          <div class="mb-4">
             <label for="message" class="form-label">Message</label>
-            <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
-            @error('message') <span class="text-danger">{{ $message }}</span> @enderror
+            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Enter your reason or details" required></textarea>
+            @error('message') <div class="text-danger small">{{ $message }}</div> @enderror
           </div>
           
-          <div id="certificateUpload" class="mb-3" style="display: none;">
+          <div id="certificateUpload" class="mb-4" style="display: none;">
             <label for="medicalCertificate" class="form-label">Upload Medical Certificate</label>
             <input type="file" class="form-control" id="medicalCertificate" name="certificate" accept="image/*,application/pdf">
-            @error('certificate') <span class="text-danger">{{ $message }}</span> @enderror
+            @error('certificate') <div class="text-danger small">{{ $message }}</div> @enderror
           </div>
           
-          <button type="submit" class="btn leave-btn">Submit</button>
+          <button type="submit" class="btn leave-btn w-100">Submit Request</button>
         </form>
       </div>
     </div>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AubCharika - Requests</title>
+  <title>AubCharika - All Requests</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -112,6 +112,8 @@
       border-radius: 12px;
       padding: 30px;
       border: 1px solid rgba(255, 179, 0, 0.2);
+      max-height: 500px; /* Limit the height of the section */
+      overflow-y: auto; /* Add vertical scrollbar */
     }
 
     .request-table {
@@ -128,16 +130,13 @@
     .request-table th {
       background: rgba(255, 179, 0, 0.15);
       color: #ffc107;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     .request-table tr:hover {
       background: rgba(255, 255, 255, 0.05);
-    }
-
-    .action-btn {
-      padding: 5px 10px;
-      font-size: 0.85rem;
-      border-radius: 5px;
     }
 
     .date-box {
@@ -298,14 +297,14 @@
       </div>
     </div>
 
-   <div class="hero-section">
-  <h1 class="fw-bold mb-3">Request Management<br>Overview</h1>
-  <a href="{{ route('all.requests') }}" class="btn btn-dark fw-semibold me-3">View All Requests</a>
-  
-</div>
+    <div class="hero-section">
+      <h1 class="fw-bold mb-3">All Requests<br>Overview</h1>
+      <a href="{{ route('requests') }}" class="btn btn-dark fw-semibold me-3">View Pending Requests</a>
+      <button class="btn btn-outline-dark fw-semibold">Filter Requests</button>
+    </div>
 
     <div class="requests-section">
-      <h4 class="mb-4">Pending Requests</h4>
+      <h4 class="mb-4">All Requests</h4>
       @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
       @endif
@@ -321,7 +320,6 @@
             <th>Duration</th>
             <th>Status</th>
             <th>Certificate</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -357,24 +355,10 @@
                   <span class="text-muted">N/A</span>
                 @endif
               </td>
-              <td>
-                @if ($request->status == 'pending')
-                  <form action="{{ route('requests.approve', $request->id) }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-success action-btn me-2">Approve</button>
-                  </form>
-                  <form action="{{ route('requests.deny', $request->id) }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger action-btn">Deny</button>
-                  </form>
-                @else
-                  <span>-</span>
-                @endif
-              </td>
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center">No pending requests found.</td>
+              <td colspan="6" class="text-center">No requests found.</td>
             </tr>
           @endforelse
         </tbody>
@@ -508,12 +492,11 @@
           object.type = 'application/pdf';
           object.width = '100%';
           object.height = '500px';
-          object.innerHTML = `<p>Download PDF.</p>`;
+          object.innerHTML = `<p>Unable to display PDF.</p>`;
           certificateContent.appendChild(object);
 
-          // Add the download link dynamically
           const downloadLink = document.createElement('a');
-          downloadLink.href = `/requests/${requestId}/download`; // Use the route directly
+          downloadLink.href = `/requests/${requestId}/download`;
           downloadLink.className = 'btn btn-outline-warning mt-2';
           downloadLink.textContent = 'Download PDF';
           downloadLinkContainer.appendChild(downloadLink);

@@ -170,27 +170,46 @@ class ClockController extends Controller
         return view('employee.TASKS', ['user' => $user]);
     }
     
-    public function History()
-    {
-        $user = Auth::user();
-        \Log::info('Fetching attendance for user ID: ' . $user->id);
-        $attendances = Attendance::where('user_id', $user->id)
-            ->orderBy('date', 'desc')
-            ->get();
-        \Log::info('Retrieved attendances: ' . $attendances->toJson());
+   public function History(Request $request)
+{
+    $user = Auth::user();
+    \Log::info('Fetching attendance for user ID: ' . $user->id);
 
-        $authController = new AuthentificationController();
-        $messages = $authController->getUserMessages() ?? collect();
-        $messages->each(function ($message) {
-            $message->sent_at_human = Carbon::parse($message->sent_at)->diffForHumans();
-        });
+    $query = Attendance::where('user_id', $user->id);
 
-        $today = Carbon::today();
-        $currentAttendance = Attendance::where('user_id', $user->id)
-            ->where('date', $today->toDateString())
-            ->first();
-        $isClockedIn = $currentAttendance ? $currentAttendance->isClockedIn() : false;
-
-        return view('employee.history', compact('attendances', 'messages', 'isClockedIn', 'currentAttendance'));
+    // Apply filters based on request
+    if ($request->has('week') && !empty($request->input('week'))) {
+        $week = Carbon::parse($request->input('week'));
+        $startOfWeek = $week->startOfWeek()->toDateString();
+        $endOfWeek = $week->endOfWeek()->toDateString();
+        $query->whereBetween('date', [$startOfWeek, $endOfWeek]);
     }
+
+    if ($request->has('month') && !empty($request->input('month'))) {
+        $month = $request->input('month');
+        $year = $request->input('year') ?: date('Y');
+        $query->whereMonth('date', Carbon::parse($month)->month)->whereYear('date', $year);
+    }
+
+    if ($request->has('year') && !empty($request->input('year'))) {
+        $query->whereYear('date', $request->input('year'));
+    }
+
+    $attendances = $query->orderBy('date', 'desc')->get();
+    \Log::info('Retrieved attendances: ' . $attendances->toJson());
+
+    $authController = new AuthentificationController();
+    $messages = $authController->getUserMessages() ?? collect();
+    $messages->each(function ($message) {
+        $message->sent_at_human = Carbon::parse($message->sent_at)->diffForHumans();
+    });
+
+    $today = Carbon::today();
+    $currentAttendance = Attendance::where('user_id', $user->id)
+        ->where('date', $today->toDateString())
+        ->first();
+    $isClockedIn = $currentAttendance ? $currentAttendance->isClockedIn() : false;
+
+    return view('employee.history', compact('attendances', 'messages', 'isClockedIn', 'currentAttendance'));
+}
 }
