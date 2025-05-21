@@ -5,6 +5,9 @@
   <title>AubCharika - Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- jsPDF and AutoTable CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     :root {
       --primary-bg: #0a0913;
@@ -29,7 +32,6 @@
       color: white;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -73,14 +75,12 @@
       margin-right: 10px;
     }
 
-    /* Main Content */
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-    /* User Card */
     .user-card-container {
       grid-column: 3;
       width: 280px;
@@ -95,7 +95,6 @@
       top: 30px;
     }
 
-    /* Dashboard Section */
     .dashboard-container {
       max-width: 800px;
       margin: 0 auto;
@@ -137,7 +136,6 @@
       margin-bottom: 10px;
     }
 
-    /* Date & Time Boxes */
     .date-box {
       background: var(--gold-gradient);
       padding: 10px;
@@ -161,7 +159,6 @@
       color: black;
     }
 
-    /* Search & Notification */
     .search-bar input {
       background: rgba(255, 255, 255, 0.1);
       border: none;
@@ -198,6 +195,49 @@
       object-fit: cover;
       border-radius: 50%;
     }
+
+    .modal-content {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 179, 0, 0.2);
+      color: white;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid rgba(255, 179, 0, 0.2);
+    }
+
+    .modal-footer {
+      border-top: 1px solid rgba(255, 179, 0, 0.2);
+    }
+
+    .btn-primary {
+      background: var(--gold-gradient);
+      border: none;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(195deg, rgba(255, 147, 5, 1) 0%, rgba(248, 238, 196, 1) 100%);
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      box-shadow: none;
+    }
+
+    .alert {
+      background: rgba(255, 179, 0, 0.2);
+      color: #ffc107;
+      border: none;
+    }
   </style>
 </head>
 <body>
@@ -218,32 +258,32 @@
       </li>
       <li class="nav-item">
         <a href="{{ url('employees') }}" class="nav-link">
-          <i class="fas fa-users"></i> Employees
+          <i class="fas fa-users"></i> Employés
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('tasks') }}" class="nav-link">
-          <i class="fas fa-tasks"></i> Tasks
+        <a href="{{ url('tasksadmin') }}" class="nav-link">
+          <i class="fas fa-tasks"></i> Tâches
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('statistics') }}" class="nav-link">
-          <i class="fas fa-chart-bar"></i> Statistics
+          <i class="fas fa-chart-bar"></i> Statistiques
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('requests') }}" class="nav-link">
-          <i class="fas fa-envelope"></i> Requests
+          <i class="fas fa-envelope"></i> Demandes
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('message') }}" class="nav-link">
+        <a href="{{ url('sendmessage') }}" class="nav-link">
           <i class="fas fa-envelope"></i> Message
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('settings') }}" class="nav-link">
-          <i class="fas fa-cog"></i> Settings
+        <a href="{{ url('settingsadmin') }}" class="nav-link">
+          <i class="fas fa-cog"></i> Paramètres
         </a>
       </li>
     </ul>
@@ -252,13 +292,13 @@
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="{{ url('myaccount') }}" class="nav-link">
-          <i class="fas fa-user-circle"></i> My Account
+        <a href="{{ url('myaccountt') }}" class="nav-link">
+          <i class="fas fa-user-circle"></i> Mon compte
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
+        <a href="{{ url('logout') }}" class="nav-link">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
         </a>
       </li>
     </ul>
@@ -270,7 +310,7 @@
   <div class="dashboard-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="search-bar">
-        <input type="text" class="form-control" placeholder="Search Here...">
+        <input type="text" class="form-control" placeholder="Rechercher ici...">
       </div>
       <div class="notification-icon">
         <button class="btn rounded-circle">
@@ -280,58 +320,49 @@
     </div>
 
     <div class="hero-section">
-      <h1 class="fw-bold mb-3">Admin Dashboard<br>Overview</h1>
-      <button class="btn btn-dark fw-semibold me-3">View Reports</button>
-      <button class="btn btn-outline-dark fw-semibold">Manage Team</button>
+      <h1 class="fw-bold mb-3">Tableau de bord Admin<br>Aperçu</h1>
+      <button class="btn btn-dark fw-semibold me-3" data-bs-toggle="modal" data-bs-target="#datePickerModal">Télécharger le rapport</button>
+      <button class="btn btn-outline-dark fw-semibold">Gérer l'équipe</button>
     </div>
 
     <div class="metrics-section">
-      <h4 class="mb-4">Key Metrics</h4>
+      <h4 class="mb-4">Métriques clés</h4>
       <div class="row g-3">
         <div class="col-md-3">
           <div class="metric-card">
             <i class="fas fa-users"></i>
-            <h5>Total Employees</h5>
-            <h3>42</h3>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="metric-card">
-            <i class="fas fa-tasks"></i>
-            <h5>Active Tasks</h5>
-            <h3>15</h3>
+            <h5>Employés totaux</h5>
+            <h3>{{ \App\Models\User::count() }}</h3>
           </div>
         </div>
         <div class="col-md-3">
           <div class="metric-card">
             <i class="fas fa-clock"></i>
-            <h5>Attendance Today</h5>
-            <h3>38</h3>
+            <h5>Présences aujourd'hui</h5>
+            <h3>{{ \App\Models\Attendance::where('date', \Carbon\Carbon::today()->toDateString())->count() }}</h3>
           </div>
         </div>
         <div class="col-md-3">
           <div class="metric-card">
             <i class="fas fa-envelope"></i>
-            <h5>Pending Requests</h5>
-            <h3>7</h3>
+            <h5>Demandes en attente</h5>
+            <h3>{{ \App\Models\Leave_request::where('status', 'pending')->count() }}</h3>
           </div>
         </div>
       </div>
 
-      <h4 class="mt-5 mb-4">Recent Activity</h4>
+      <h4 class="mt-5 mb-4">Activités récentes</h4>
       <ul class="list-unstyled">
-        <li class="d-flex align-items-center mb-3">
-          <i class="fas fa-user-check me-2 text-success"></i>
-          <span>John Doe clocked in at 08:45 AM</span>
-        </li>
-        <li class="d-flex align-items-center mb-3">
-          <i class="fas fa-tasks me-2 text-warning"></i>
-          <span>New task assigned to Jane Smith</span>
-        </li>
-        <li class="d-flex align-items-center mb-3">
-          <i class="fas fa-envelope me-2 text-info"></i>
-          <span>Leave request submitted by Mike Johnson</span>
-        </li>
+        @if (!empty($recentActivities))
+          @foreach ($recentActivities as $activity)
+            <li class="d-flex align-items-center mb-3">
+              <i class="{{ $activity['icon'] }} me-2 {{ $activity['color'] }}"></i>
+              <span>{{ $activity['text'] }} ({{ \Carbon\Carbon::parse($activity['timestamp'])->format('d/m/Y H:i') }})</span>
+            </li>
+          @endforeach
+        @else
+          <li>Aucune activité récente disponible.</li>
+        @endif
       </ul>
     </div>
   </div>
@@ -341,10 +372,10 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>Admin</small>
+      <h6 class="fw-bold mb-0">{{ Auth::user()->full_name }}</h6>
+      <small>{{ Auth::user()->role }}</small>
     </div>
-    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
+    <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar">
   </div>
 
   <div class="section-label">Date</div>
@@ -356,8 +387,8 @@
       <div class="small" id="weekday"></div>
     </div>
     <div class="time-box text-center">
-      <div class="fs-1 fw-bold" id="hour"></div>
-      <div class="fs-1 fw-bold" id="minute"></div>
+      <div class="fs-5 fw-bold" id="hour"></div>
+      <div class="fs-5 fw-bold" id="minute"></div>
       <div class="text-uppercase small text-primary" id="ampm"></div>
     </div>
   </div>
@@ -366,39 +397,180 @@
   <div class="message-box d-flex align-items-start gap-2">
     <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
     <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
+      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• Il y a 1 minute</span></div>
       <div>Khdm mgwd wla sir t9wd</div>
     </div>
   </div>
 </div>
 
+<!-- Date Picker Modal -->
+<div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="datePickerModalLabel">Choisir une date pour le rapport</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="reportDate" class="form-label">Sélectionner une date</label>
+          <input type="date" class="form-control" id="reportDate" max="{{ $today }}">
+        </div>
+        <div id="dateError" class="alert d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="downloadReportBtn">Télécharger</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Fonction pour mettre à jour l'heure et la date
+  // Pass data to JavaScript
+  const recentActivities = @json($recentActivities);
+  const user = {
+    full_name: @json(Auth::user()->full_name),
+    role: @json(Auth::user()->role)
+  };
+  const today = @json($today);
+
+  // Function to generate and download PDF
+  function exportActivityReport(attendanceData, selectedDate) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Colors
+    const goldStart = [255, 179, 0];
+    const goldEnd = [248, 238, 196];
+    const darkBg = [10, 9, 19];
+    const textColor = [255, 255, 255];
+
+    // Current date and time
+    const now = new Date();
+    const reportDate = new Date(selectedDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const reportTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    // Header
+    doc.setFillColor(...goldStart);
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 0);
+    doc.text('AubCharika Attendance Report', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Admin: ${user.full_name} (${user.role})`, 20, 30);
+    doc.text(`Généré le: ${now.toLocaleDateString('fr-FR')} ${reportTime}`, 20, 35);
+
+    // Attendance Table
+    doc.setTextColor(...textColor);
+    doc.setFontSize(14);
+    doc.text(`Présences du ${reportDate}`, 20, 50);
+    const tableData = attendanceData.map(attendance => [
+      attendance.user,
+      attendance.status,
+      attendance.clock_in,
+      attendance.clock_out,
+      `${attendance.hours}h`
+    ]);
+    doc.autoTable({
+      startY: 55,
+      head: [['Nom', 'Statut', 'Entrée', 'Sortie', 'Heures Totales']],
+      body: tableData.length > 0 ? tableData : [['-', 'Aucune présence', '-', '-', '-']],
+      theme: 'grid',
+      headStyles: {
+        fillColor: goldStart,
+        textColor: [0, 0, 0],
+        fontSize: 10
+      },
+      bodyStyles: {
+        fillColor: darkBg,
+        textColor: textColor,
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [20, 18, 38]
+      },
+      margin: { top: 55, left: 20, right: 20 }
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Généré par le système HRM AubCharika', 20, doc.internal.pageSize.height - 10);
+
+    // Download PDF
+    doc.save(`Rapport_Presences_${user.full_name}_${selectedDate}.pdf`);
+  }
+
+  // Handle date selection and validation
+  document.getElementById('downloadReportBtn').addEventListener('click', function() {
+    const selectedDate = document.getElementById('reportDate').value;
+    const errorDiv = document.getElementById('dateError');
+
+    if (!selectedDate) {
+      errorDiv.classList.remove('d-none');
+      errorDiv.textContent = 'Veuillez sélectionner une date.';
+      return;
+    }
+
+    // Send AJAX request to validate date and fetch data
+    fetch('{{ url('get-attendance-by-date') }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      },
+      body: JSON.stringify({ date: selectedDate })
+    })
+    .then(response => response.json())
+    .then(data => {
+      errorDiv.classList.add('d-none');
+      if (data.status === 'error') {
+        errorDiv.classList.remove('d-none');
+        errorDiv.textContent = data.message;
+      } else {
+        // Generate PDF
+        exportActivityReport(data.data, selectedDate);
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('datePickerModal'));
+        modal.hide();
+      }
+    })
+    .catch(error => {
+      errorDiv.classList.remove('d-none');
+      errorDiv.textContent = 'Une erreur s\'est produite. Veuillez réessayer.';
+      console.error('Error:', error);
+    });
+  });
+
+  // Date and Time Update
   function updateDateTime() {
     const now = new Date();
     
     // Mise à jour de la date
     document.getElementById('year').textContent = now.getFullYear();
-    document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
+    document.getElementById('month').textContent = now.toLocaleString('fr-FR', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
-    document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
+    document.getElementById('weekday').textContent = now.toLocaleString('fr-FR', { weekday: 'long' });
     
     // Mise à jour de l'heure
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
-    hours = hours ? hours : 12;
+    hours = hours ? hours : 12; // Convertir 0 en 12 pour minuit/midi
     const minutes = now.getMinutes().toString().padStart(2, '0');
     
-    document.get Geh('hour').textContent = hours;
+    document.getElementById('hour').textContent = hours;
     document.getElementById('minute').textContent = minutes;
     document.getElementById('ampm').textContent = ampm;
   }
 
   // Mise à jour immédiate et périodique
   updateDateTime();
-  setInterval(updateDateTime, 60000);
+  setInterval(updateDateTime, 60000); // Mise à jour toutes les 60 secondes
 </script>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

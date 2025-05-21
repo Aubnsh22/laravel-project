@@ -20,9 +20,10 @@ class Attendance extends Model
 
     protected $dates = ['date'];
 
-    // Cast date fields to Carbon instances
     protected $casts = [
         'date' => 'date',
+        'clock_in' => 'datetime',
+        'clock_out' => 'datetime',
     ];
 
     public function user()
@@ -30,27 +31,57 @@ class Attendance extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Calculate total hours worked for the day
     public function hoursWorked()
     {
         if (!$this->clock_in || !$this->clock_out) {
-            return 0; // Return 0 if either clock_in or clock_out is missing
+            return 0;
         }
 
-        $clockIn = Carbon::parse($this->clock_in);
-        $clockOut = Carbon::parse($this->clock_out);
-        return $clockIn->diffInHours($clockOut);
+        return Carbon::parse($this->clock_in)->diffInHours(Carbon::parse($this->clock_out));
     }
 
-    // Check if the user is currently clocked in (no clock_out for today)
     public function isClockedIn()
     {
         return $this->clock_in && !$this->clock_out;
     }
 
-    // Calculate expected hours (e.g., 8 hours per day)
     public function expectedHours()
     {
-        return 8; // Example: 8 hours expected per day
+        $weekStart = Carbon::parse($this->date)->startOfWeek(Carbon::MONDAY);
+        $expectedHours = ExpectedHours::where('week_start_date', $weekStart->toDateString())->first();
+        if (!$expectedHours) {
+            return 8; // Default to 8 hours if no expected hours defined
+        }
+        $dayName = strtolower(Carbon::parse($this->date)->format('l'));
+        return $expectedHours->expectedHoursForDay($dayName);
+    }
+
+    public function getStatusAttribute($value)
+    {
+        if ($this->clock_in && $this->clock_out) {
+            return 'present';
+        }
+        if ($this->clock_in && !$this->clock_out) {
+            return 'in_progress';
+        }
+
+        // Check for approved leave
+        $leave = Leave_request::where('user_id', $this->user_id)
+            ->where('status', 'approved')
+            ->where('start_date', '<=', $this->date)
+            ->where('end_date', '>=', $this->date)
+            ->first();
+
+        if ($leave) {
+            return 'on_leave';
+        }
+
+        // Check if the day is a weekend
+        $dayName = strtolower(Carbon::parse($this->date)->format('l'));
+        if (in_array($dayName, ['saturday', 'sunday'])) {
+            return 'weekend';
+        }
+
+        return 'absent';
     }
 }

@@ -5,6 +5,9 @@
   <title>AubCharika - History</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- jsPDF and AutoTable CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     :root {
       --primary-bg: #0a0913;
@@ -29,7 +32,6 @@
       color: white;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -73,14 +75,12 @@
       margin-right: 10px;
     }
 
-    /* Main Content */
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-    /* User Card */
     .user-card-container {
       grid-column: 3;
       width: 280px;
@@ -95,13 +95,11 @@
       top: 30px;
     }
 
-    /* History Container */
     .history-container {
       max-width: 900px;
       margin: 0 auto;
     }
 
-    /* Search Form */
     .search-form .form-control, 
     .search-form .form-select {
       background: rgba(255, 255, 251, 0.1);
@@ -115,7 +113,6 @@
       font-weight: 600;
     }
 
-    /* Table Styles - Version dynamique comme dans Stats */
     .dynamic-table {
       width: 100%;
       border-collapse: separate;
@@ -152,7 +149,6 @@
       background: rgba(255, 179, 0, 0.1);
     }
 
-    /* Status Badges */
     .badge-present {
       background-color: rgba(40, 167, 69, 0.2);
       color: #28a745;
@@ -176,7 +172,6 @@
       border-radius: 20px;
     }
 
-    /* Summary Card */
     .summary-card {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
@@ -185,7 +180,6 @@
       border: 1px solid rgba(255, 179, 0, 0.1);
     }
 
-    /* Hero Section */
     .hero-section {
       background: var(--gold-gradient);
       border-radius: 12px;
@@ -195,7 +189,6 @@
       box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .dynamic-table {
         display: block;
@@ -239,7 +232,6 @@
       overflow-y: auto;
     }
 
-    /* Custom Scrollbar */
     .message-box::-webkit-scrollbar {
       width: 8px;
     }
@@ -279,7 +271,6 @@
       border-radius: 50%;
     }
 
-    /* Dropdown Styles */
     .profile-dropdown .dropdown-menu {
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(10px);
@@ -372,16 +363,16 @@
     <div class="hero-section">
       <h1 class="fw-bold mb-3">Track Your<br>Attendance History</h1>
       <button class="btn btn-dark fw-semibold me-3">View Details</button>
-      <button class="btn btn-outline-dark fw-semibold">Export Report</button>
+      <button class="btn btn-outline-dark fw-semibold" onclick="exportReport()">Export Report</button>
     </div>
 
     <!-- Search Form -->
     <form class="row g-3 mb-4 search-form">
       <div class="col-md-4">
-        <input type="week" class="form-control" placeholder="Select Week">
+        <input type="week" class="form-control" placeholder="Select Week" id="weekFilter">
       </div>
       <div class="col-md-3">
-        <select class="form-select">
+        <select class="form-select" id="monthFilter">
           <option selected>Month</option>
           <option>January</option>
           <option>February</option>
@@ -398,7 +389,7 @@
         </select>
       </div>
       <div class="col-md-3">
-        <select class="form-select">
+        <select class="form-select" id="yearFilter">
           <option selected>Year</option>
           <option>2025</option>
           <option>2024</option>
@@ -413,15 +404,10 @@
     </form>
 
     <!-- Current Clock-In Status -->
-    @if($isClockedIn)
+    @if($isClockedIn && $currentAttendance)
       <div class="alert alert-success">
-        You are currently clocked in since {{ \Carbon\Carbon::parse($currentAttendance->clock_in)->format('h:i A') }}.
-        <?php
-          $clockIn = \Carbon\Carbon::parse($currentAttendance->clock_in);
-          $now = \Carbon\Carbon::now();
-          $ongoingHours = $clockIn->diffInHours($now);
-        ?>
-        Ongoing hours: {{ $ongoingHours }}h
+        You are currently clocked in since {{ \Carbon\Carbon::parse($currentAttendance->clock_in, 'Africa/Casablanca')->format('h:i A') }}.
+        Ongoing hours: {{ \Carbon\Carbon::parse($currentAttendance->clock_in, 'Africa/Casablanca')->diffInHours(\Carbon\Carbon::now('Africa/Casablanca')) }}h
       </div>
     @endif
 
@@ -439,33 +425,22 @@
           </tr>
         </thead>
         <tbody>
-          @forelse ($attendances as $attendance)
+          @forelse ($attendanceData as $attendance)
             <tr>
-              <td>{{ $attendance->date->format('Y-m-d') }}</td>
-              <td>{{ $attendance->date->format('l') }}</td>
+              <td>{{ $attendance[0] }}</td>
+              <td>{{ $attendance[1] }}</td>
               <td>
-                @if ($attendance->clock_in && $attendance->clock_out)
+                @if ($attendance[2] === 'Present')
                   <span class="badge-present">Present</span>
-                @elseif ($attendance->clock_in && !$attendance->clock_out)
+                @elseif ($attendance[2] === 'In Progress')
                   <span class="badge-present">In Progress</span>
                 @else
                   <span class="badge-absent">Incomplete</span>
                 @endif
               </td>
-              <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('h:i A') : '-' }}</td>
-              <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('h:i A') : '-' }}</td>
-              <td>
-                @if ($attendance->clock_in && !$attendance->clock_out)
-                  <?php
-                    $clockIn = \Carbon\Carbon::parse($attendance->clock_in);
-                    $now = \Carbon\Carbon::now();
-                    $ongoingHours = $clockIn->diffInHours($now);
-                  ?>
-                  {{ $ongoingHours }}h (In Progress)
-                @else
-                  {{ $attendance->hoursWorked() > 0 ? number_format($attendance->hoursWorked(), 1) . 'h' : '-' }}
-                @endif
-              </td>
+              <td>{{ $attendance[3] }}</td>
+              <td>{{ $attendance[4] }}</td>
+              <td>{{ $attendance[5] }}</td>
             </tr>
           @empty
             <tr>
@@ -477,23 +452,6 @@
     </div>
 
     <!-- Weekly Summary -->
-    <?php
-      $daysWorked = $attendances->filter(function ($attendance) {
-        return $attendance->clock_in && $attendance->clock_out;
-      })->count();
-      $totalHours = $attendances->sum(function ($attendance) {
-        if ($attendance->clock_in && !$attendance->clock_out) {
-          return \Carbon\Carbon::parse($attendance->clock_in)->diffInHours(\Carbon\Carbon::now());
-        }
-        return $attendance->hoursWorked();
-      });
-      $weeklyTarget = $attendances->sum->expectedHours();
-      $targetAchieved = $weeklyTarget > 0 ? ($totalHours / $weeklyTarget) * 100 : 0;
-      $dailyAvg = $daysWorked > 0 ? $totalHours / $daysWorked : 0;
-      $daysAbsent = $attendances->filter(function ($attendance) {
-        return !$attendance->clock_in || !$attendance->clock_out;
-      })->count();
-    ?>
     <div class="summary-card">
       <div class="row">
         <div class="col-md-6">
@@ -519,7 +477,7 @@
         </div>
         <div class="col-md-6">
           <div class="d-flex justify-content-between mb-2">
-            <span>Target: {{ number_format($weeklyTarget, 1) }}h</span>
+            <span>Target: {{ number_format($weeklyExpectedHours, 1) }}h</span>
             <span>{{ number_format($targetAchieved, 0) }}%</span>
           </div>
           <div class="progress" style="height: 10px;">
@@ -589,18 +547,109 @@
   </div>
 </div>
 
+<!-- Pass Data to JavaScript -->
 <script>
-  // Function to update date and time
+  // Attendance data
+  const attendances = @json($attendanceData);
+
+  // User data
+  const user = {
+    full_name: @json(Auth::user()->full_name),
+    role: @json(Auth::user()->role),
+    employee_id: @json(Auth::user()->employee_id ?? 'N/A')
+  };
+
+  // Summary data
+  const summary = {
+    daysWorked: @json($daysWorked),
+    totalHours: @json(number_format($totalHours, 1)),
+    targetAchieved: @json(number_format($targetAchieved, 0)),
+    dailyAvg: @json(number_format($dailyAvg, 1)),
+    weeklyTarget: @json(number_format($weeklyExpectedHours, 1)),
+    daysAbsent: @json($daysAbsent)
+  };
+
+  // Function to generate and download PDF
+  function exportReport() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Colors
+    const goldStart = [255, 179, 0];
+    const goldEnd = [248, 238, 196];
+    const darkBg = [10, 9, 19];
+    const textColor = [255, 255, 255];
+
+    // Header
+    doc.setFillColor(...goldStart);
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 0);
+    doc.text('AubCharika Attendance Report', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Employee: ${user.full_name} (${user.role})`, 20, 30);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 35);
+
+    // Attendance Table
+    doc.setTextColor(...textColor);
+    doc.setFontSize(14);
+    doc.text('Attendance History', 20, 50);
+    doc.autoTable({
+      startY: 55,
+      head: [['Date', 'Day', 'Status', 'Clock In', 'Clock Out', 'Total Hours']],
+      body: attendances,
+      theme: 'grid',
+      headStyles: {
+        fillColor: goldStart,
+        textColor: [0, 0, 0],
+        fontSize: 10
+      },
+      bodyStyles: {
+        fillColor: darkBg,
+        textColor: textColor,
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [20, 18, 38]
+      },
+      margin: { top: 55, left: 20, right: 20 }
+    });
+
+    // Weekly Summary
+    let finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.text('Weekly Summary', 20, finalY);
+    doc.setFontSize(10);
+    doc.text(`Days Worked: ${summary.daysWorked}`, 20, finalY + 10);
+    doc.text(`Total Hours: ${summary.totalHours}h`, 20, finalY + 15);
+    doc.text(`Target Achieved: ${summary.targetAchieved}%`, 20, finalY + 20);
+    doc.text(`Daily Average: ${summary.dailyAvg}h`, 20, finalY + 25);
+    doc.text(`Weekly Target: ${summary.weeklyTarget}h`, 20, finalY + 30);
+    doc.text(`Days Incomplete: ${summary.daysAbsent}`, 20, finalY + 35);
+
+    // Progress Bar Simulation
+    doc.setFillColor(...goldStart);
+    doc.rect(20, finalY + 40, 100, 5, 'F');
+    doc.setFillColor(...goldEnd);
+    doc.rect(20, finalY + 40, summary.targetAchieved, 5, 'F');
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Generated by AubCharika HRM System', 20, doc.internal.pageSize.height - 10);
+
+    // Download PDF
+    doc.save(`Attendance_Report_${user.full_name}_${new Date().toISOString().split('T')[0]}.pdf`);
+  }
+
+  // Date and Time Update
   function updateDateTime() {
-    const now = new Date('2025-05-20T00:54:00+01:00'); // Updated to 12:54 AM
-    
-    // Update date
+    const now = new Date();
     document.getElementById('year').textContent = now.getFullYear();
     document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
     document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
     
-    // Update time
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
@@ -612,12 +661,11 @@
     document.getElementById('ampm').textContent = ampm;
   }
 
-  // Immediate and periodic update
   updateDateTime();
   setInterval(updateDateTime, 60000);
 </script>
 
-<!-- Bootstrap JS for dropdown functionality -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

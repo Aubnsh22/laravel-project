@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AubCharika - Statistics</title>
+  <title>AubCharika - Statistiques</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -274,7 +274,7 @@
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
 
@@ -286,32 +286,32 @@
       </li>
       <li class="nav-item">
         <a href="{{ url('employees') }}" class="nav-link">
-          <i class="fas fa-users"></i> Employees
+          <i class="fas fa-users"></i> Employés
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('tasksadmin') }}" class="nav-link">
-          <i class="fas fa-tasks"></i> Tasks
+          <i class="fas fa-tasks"></i> Tâches
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('statistics') }}" class="nav-link active">
-          <i class="fas fa-chart-bar"></i> Statistics
+          <i class="fas fa-chart-bar"></i> Statistiques
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('requests') }}" class="nav-link">
-          <i class="fas fa-envelope"></i> Requests
+          <i class="fas fa-envelope"></i> Demandes
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('message') }}" class="nav-link">
-          <i class="fas fa-envelope"></i> Message
+        <a href="{{ url('sendmessage') }}" class="nav-link">
+          <i class="fas fa-envelope"></i> Messages
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ url('settingsadmin') }}" class="nav-link">
-          <i class="fas fa-cog"></i> Settings
+          <i class="fas fa-cog"></i> Paramètres
         </a>
       </li>
     </ul>
@@ -321,12 +321,12 @@
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
         <a href="{{ url('myaccountt') }}" class="nav-link">
-          <i class="fas fa-user-circle"></i> My Account
+          <i class="fas fa-user-circle"></i> Mon Compte
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
+        <a href="{{ url('logout') }}" class="nav-link">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
         </a>
       </li>
     </ul>
@@ -338,7 +338,7 @@
   <div class="stats-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="search-bar">
-        <input type="text" class="form-control" placeholder="Search Statistics...">
+        <input type="text" class="form-control" placeholder="Rechercher des statistiques...">
       </div>
       <div class="notification-icon">
         <button class="btn rounded-circle">
@@ -348,21 +348,21 @@
     </div>
 
     <div class="hero-section">
-      <h1 class="fw-bold mb-3">Statistics<br>Overview</h1>
-      <button class="btn btn-dark fw-semibold me-3">View All Stats</button>
-      <button class="btn btn-outline-dark fw-semibold">Filter Stats</button>
+      <h1 class="fw-bold mb-3">Statistiques<br>Aperçu</h1>
+      <button class="btn btn-dark fw-semibold me-3">Voir Toutes les Statistiques</button>
+      <button class="btn btn-outline-dark fw-semibold">Filtrer les Statistiques</button>
     </div>
 
     <div class="stats-section">
-      <h4 class="mb-4">Performance Metrics</h4>
+      <h4 class="mb-4">Métriques de Performance</h4>
       
       <!-- Navigation par onglets -->
       <div class="stats-tabs">
         <div class="stats-tab active" data-target="overview-tab">
-          <i class="fas fa-tachometer-alt me-2"></i>Overview
+          <i class="fas fa-tachometer-alt me-2"></i>Aperçu
         </div>
         <div class="stats-tab" data-target="employee-tab">
-          <i class="fas fa-users me-2"></i>Employee Performance
+          <i class="fas fa-users me-2"></i>Performance des Employés
         </div>
       </div>
 
@@ -371,16 +371,16 @@
         <div class="stat-card">
           <div class="row align-items-center">
             <div class="col-md-4 text-center mb-4 mb-md-0">
-              <div class="average-hours">15</div>
-              <div class="text-warning mb-3">Active Employees</div>
+              <div class="average-hours">{{ $activeEmployees }}</div>
+              <div class="text-warning mb-3">Employés Actifs</div>
               <div class="d-flex justify-content-center gap-3">
                 <div class="text-center">
-                  <div class="fw-bold">+10%</div>
-                  <small>vs last month</small>
+                  <div class="fw-bold">{{ $percentChange > 0 ? '+' : '' }}{{ $percentChange }}%</div>
+                  <small>par rapport au mois dernier</small>
                 </div>
                 <div class="text-center">
-                  <div class="fw-bold">105h</div>
-                  <small>total this month</small>
+                  <div class="fw-bold">{{ $totalHoursThisMonth }}h</div>
+                  <small>total ce mois</small>
                 </div>
               </div>
             </div>
@@ -396,13 +396,13 @@
           <div class="row">
             <div class="col-md-6 mb-4 mb-md-0">
               <h5 class="text-warning mb-3">
-                <i class="fas fa-chart-line me-2"></i>Average Performance
+                <i class="fas fa-chart-line me-2"></i>Performance Moyenne
               </h5>
               <canvas id="employeeChart" height="250"></canvas>
             </div>
             <div class="col-md-6">
               <h5 class="text-warning mb-3">
-                <i class="fas fa-medal me-2"></i>Top Performers
+                <i class="fas fa-medal me-2"></i>Meilleurs Performeurs
               </h5>
               <div class="list-group ranking-list" id="topPerformersList">
                 <!-- Generated by JS -->
@@ -419,10 +419,10 @@
 <div id="carte" class="user-card-container mr-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>Admin</small>
+      <h6 class="fw-bold mb-0">{{ $user->full_name }}</h6>
+      <small>{{ $user->role }}</small>
     </div>
-    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
+    <img src="{{ $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar">
   </div>
 
   <div class="section-label">Date</div>
@@ -442,15 +442,30 @@
 
   <div class="section-label">Message</div>
   <div class="message-box d-flex align-items-start gap-2">
-    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-    <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-      <div>Khdm mgwd wla sir t9wd</div>
-    </div>
+    @if ($latestMessage)
+      <img src="{{ $latestMessage->sender->profile_photo_path ? asset('storage/' . $latestMessage->sender->profile_photo_path) : 'https://randomuser.me/api/portraits/men/36.jpg' }}" alt="avatar" class="user-avatar-small">
+      <div>
+        <div class="fw-bold small">{{ $latestMessage->sender->full_name }} <span class="text-muted">• {{ $latestMessage->created_at->diffForHumans() }}</span></div>
+        <div>{{ $latestMessage->content }}</div>
+      </div>
+    @else
+      <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+      <div>
+        <div class="fw-bold small">Aucun message</div>
+        <div>Aucun message récent disponible.</div>
+      </div>
+    @endif
   </div>
 </div>
 
 <script>
+  // Pass data to JavaScript
+  const dailyHours = @json($dailyHours);
+  const dates = @json($dates);
+  const monthlyHours = @json($monthlyHours);
+  const months = @json($months);
+  const topPerformers = @json($topPerformers);
+
   // Navigation par onglets
   document.querySelectorAll('.stats-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -467,10 +482,10 @@
   new Chart(overviewCtx, {
     type: 'bar',
     data: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      labels: dates,
       datasets: [{
-        label: 'Total Hours',
-        data: [120, 115, 130, 125, 110, 80, 20],
+        label: 'Heures Totales',
+        data: dailyHours,
         backgroundColor: 'rgba(255, 179, 0, 0.7)',
         borderColor: 'rgba(255, 179, 0, 1)',
         borderWidth: 1,
@@ -482,7 +497,7 @@
       scales: {
         y: {
           beginAtZero: true,
-          max: 150,
+          max: Math.max(...dailyHours, 150) + 10,
           grid: {
             color: 'rgba(255, 255, 255, 0.1)'
           },
@@ -515,10 +530,10 @@
   new Chart(employeeCtx, {
     type: 'line',
     data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      labels: months,
       datasets: [{
-        label: 'Average Score',
-        data: [85, 87, 88, 90, 89, 91, 92, 90, 93, 94, 92, 95],
+        label: 'Heures Moyennes',
+        data: monthlyHours,
         fill: true,
         backgroundColor: 'rgba(255, 179, 0, 0.1)',
         borderColor: 'rgba(255, 179, 0, 1)',
@@ -533,14 +548,14 @@
       scales: {
         y: {
           beginAtZero: true,
-          max: 100,
+          max: Math.max(...monthlyHours, 100) + 10,
           grid: {
             color: 'rgba(255, 255, 255, 0.1)'
           },
           ticks: {
             color: 'rgba(255, 255, 255, 0.7)',
             callback: function(value) {
-              return value + '/100';
+              return value + 'h';
             }
           }
         },
@@ -569,15 +584,8 @@
   });
 
   // Top Performers
-  const employees = [
-    { name: "Sophie Martin", position: "Fullstack Developer", score: 94, department: "Development" },
-    { name: "Thomas Leroy", position: "UX Designer", score: 89, department: "Design" },
-    { name: "Julie Bernard", position: "Product Manager", score: 85, department: "Marketing" },
-    { name: "Nicolas Petit", position: "Frontend Developer", score: 82, department: "Development" }
-  ];
-
   const topPerformersList = document.getElementById('topPerformersList');
-  employees.forEach(emp => {
+  topPerformers.forEach(emp => {
     const item = document.createElement('div');
     item.className = 'list-group-item';
     item.innerHTML = `
@@ -605,9 +613,9 @@
     const now = new Date();
     
     document.getElementById('year').textContent = now.getFullYear();
-    document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
+    document.getElementById('month').textContent = now.toLocaleString('fr-FR', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
-    document.getElementById('weekday').textContent = now.toLocaleString('default', { weekday: 'long' });
+    document.getElementById('weekday').textContent = now.toLocaleString('fr-FR', { weekday: 'long' });
     
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';

@@ -1,8 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use App\Models\Leave_request;
 use App\Models\Message;
+use App\Models\ExpectedHours;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +14,7 @@ use App\Mail\WelcomeEmployee;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\ExpectedHours;
+use Carbon\Carbon;
 
 class AuthentificationController extends Controller
 {
@@ -290,18 +293,15 @@ class AuthentificationController extends Controller
 
         $user = Auth::user();
         if ($request->hasFile('profile_photo')) {
-            // Delete old photo if it exists
             if ($user->profile_photo_path) {
                 Storage::disk('public')->delete($user->profile_photo_path);
                 Log::info('Old photo deleted: ' . $user->profile_photo_path);
             }
 
-            // Store new photo with a unique name
             $fileName = time() . '_' . $request->file('profile_photo')->getClientOriginalName();
             $path = $request->file('profile_photo')->storeAs('profile_photos', $fileName, 'public');
             Log::info('New photo stored at: ' . $path);
 
-            // Update user with the new path
             $user->profile_photo_path = $path;
             if ($user->save()) {
                 Log::info('User profile_photo_path updated to: ' . $user->profile_photo_path);
@@ -316,39 +316,58 @@ class AuthentificationController extends Controller
 
         return redirect()->route('Clock_In')->with('success', 'Profile picture updated successfully.');
     }
+
     public function showSetExpectedHoursForm()
-{
-    return view('admin.set-expected-hours');
-}
-
-public function storeExpectedHours(Request $request)
-{
-    $validatedData = $request->validate([
-        'week_start_date' => 'required|date',
-        'monday_hours' => 'required|numeric|min:0|max:24',
-        'tuesday_hours' => 'required|numeric|min:0|max:24',
-        'wednesday_hours' => 'required|numeric|min:0|max:24',
-        'thursday_hours' => 'required|numeric|min:0|max:24',
-        'friday_hours' => 'required|numeric|min:0|max:24',
-        'saturday_hours' => 'required|numeric|min:0|max:24',
-        'sunday_hours' => 'required|numeric|min:0|max:24',
-    ]);
-
-    // Ensure the week_start_date is a Monday
-    $weekStartDate = \Carbon\Carbon::parse($validatedData['week_start_date']);
-    if ($weekStartDate->dayOfWeek !== \Carbon\Carbon::MONDAY) {
-        return redirect()->back()->with('error', 'Week start date must be a Monday.');
+    {
+        $latestExpectedHours = ExpectedHours::orderBy('week_start_date', 'desc')->first();
+        $allExpectedHours = ExpectedHours::orderBy('week_start_date', 'desc')->get();
+        return view('admin.set-expected-hours', compact('latestExpectedHours', 'allExpectedHours'));
     }
 
-    // Check if an entry for this week already exists
-    $existing = ExpectedHours::where('week_start_date', $weekStartDate->toDateString())->first();
-    if ($existing) {
-        $existing->update($validatedData);
-        return redirect()->route('set.expected.hours')->with('success', 'Expected hours updated successfully.');
+    public function storeExpectedHours(Request $request)
+    {
+        $validatedData = $request->validate([
+            'week_start_date' => 'required|date',
+            'monday_start_time' => 'nullable|date_format:H:i',
+            'monday_end_time' => 'nullable|date_format:H:i|after:monday_start_time',
+            'tuesday_start_time' => 'nullable|date_format:H:i',
+            'tuesday_end_time' => 'nullable|date_format:H:i|after:tuesday_start_time',
+            'wednesday_start_time' => 'nullable|date_format:H:i',
+            'wednesday_end_time' => 'nullable|date_format:H:i|after:wednesday_start_time',
+            'thursday_start_time' => 'nullable|date_format:H:i',
+            'thursday_end_time' => 'nullable|date_format:H:i|after:thursday_start_time',
+            'friday_start_time' => 'nullable|date_format:H:i',
+            'friday_end_time' => 'nullable|date_format:H:i|after:friday_start_time',
+            'saturday_start_time' => 'nullable|date_format:H:i',
+            'saturday_end_time' => 'nullable|date_format:H:i|after:saturday_start_time',
+            'sunday_start_time' => 'nullable|date_format:H:i',
+            'sunday_end_time' => 'nullable|date_format:H:i|after:sunday_start_time',
+        ]);
+
+        $weekStartDate = Carbon::parse($validatedData['week_start_date']);
+        if ($weekStartDate->dayOfWeek !== Carbon::MONDAY) {
+            return redirect()->back()->with('error', 'Week start date must be a Monday.');
+        }
+
+        $existing = ExpectedHours::where('week_start_date', $weekStartDate->toDateString())->first();
+        if ($existing) {
+            $existing->update($validatedData);
+            return redirect()->route('set.expected.hours')->with('success', 'Expected hours updated successfully.');
+        }
+
+        ExpectedHours::create($validatedData);
+        return redirect()->route('set.expected.hours')->with('success', 'Expected hours set successfully.');
     }
 
-    // Create a new entry
-    ExpectedHours::create($validatedData);
-    return redirect()->route('set.expected.hours')->with('success', 'Expected hours set successfully.');
-}
+    public function deleteExpectedHours($id)
+    {
+        try {
+            $expectedHours = ExpectedHours::findOrFail($id);
+            $expectedHours->delete();
+            return redirect()->route('set.expected.hours')->with('success', 'Schedule deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete schedule: ' . $e->getMessage());
+            return redirect()->route('set.expected.hours')->with('error', 'Failed to delete schedule.');
+        }
+    }
 }

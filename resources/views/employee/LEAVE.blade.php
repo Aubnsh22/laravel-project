@@ -190,6 +190,29 @@
       height: 40px;
       object-fit: cover;
       border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .profile-dropdown .dropdown-menu {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 179, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    .profile-dropdown .dropdown-item {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 10px 15px;
+      transition: all 0.3s;
+    }
+
+    .profile-dropdown .dropdown-item:hover {
+      background: rgba(255, 179, 0, 0.15);
+      color: #ffc107;
+    }
+
+    .profile-dropdown .dropdown-item i {
+      margin-right: 10px;
     }
 
     .date-box {
@@ -209,10 +232,51 @@
     }
 
     .message-box {
-      background: var(--gold-gradient);
+      background: none;
       border-radius: 15px;
       padding: 10px;
       color: black;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-box::-webkit-scrollbar-track {
+      background: rgba(186, 186, 186, 0.2);
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb {
+      background: white;
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb:hover {
+      background: white;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid rgba(255, 179, 0, 0.3);
+      border-radius: 8px;
+      background: var(--gold-gradient);
+    }
+
+    .message-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .alert {
+      background: rgba(255, 179, 0, 0.2);
+      border: none;
+      color: #fff;
     }
   </style>
 </head>
@@ -221,12 +285,12 @@
   <div class="sidebar d-flex flex-column justify-content-between p-3">
     <div>
       <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-        <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
         <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
       </div>
       <ul id="elements" class="nav flex-column mb-auto">
         <li class="nav-item">
-          <a href="{{ url('Clock_In') }}" class="nav-link">
+          <a href="{{ url('Clock-In') }}" class="nav-link">
             <i class="fas fa-clock"></i> Clock In/Out
           </a>
         </li>
@@ -265,9 +329,12 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="{{ url('logout') }}" class="nav-link">
-            <i class="fas fa-sign-out-alt"></i> Sign Out
-          </a>
+          <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="nav-link btn btn-link">
+              <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+          </form>
         </li>
       </ul>
     </div>
@@ -276,6 +343,17 @@
   <!-- Main Content -->
   <div class="main-content">
     <div class="leave-container">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="search-bar">
+          <input type="text" class="form-control" placeholder="Search Here...">
+        </div>
+        <div class="notification-icon">
+          <button class="btn rounded-circle">
+            <i class="fas fa-bell"></i>
+          </button>
+        </div>
+      </div>
+
       <h2 class="mb-4 text-warning fw-bold">
         <i class="fas fa-plane-departure me-2"></i>Leave Management
       </h2>
@@ -340,7 +418,14 @@
         <h6 class="fw-bold mb-0">{{ Auth::user()->full_name ?? 'Saad Nassih' }}</h6>
         <small>{{ Auth::user()->role ?? 'employee' }}</small>
       </div>
-      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
+      <div class="profile-dropdown dropdown">
+        <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url('myaccount') }}"><i class="fas fa-user-circle"></i> My Account</a></li>
+          <li><a class="dropdown-item" href="{{ url('logout') }}"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
+          <li><a class="dropdown-item" href="{{ url('set-profile-picture') }}"><i class="fas fa-camera"></i> Set Profile Picture</a></li>
+        </ul>
+      </div>
     </div>
 
     <div class="section-label">Date</div>
@@ -358,13 +443,24 @@
       </div>
     </div>
 
-    <div class="section-label">Message</div>
-    <div class="message-box d-flex align-items-start gap-2">
-      <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-      <div>
-        <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-        <div>Khdm mgwd wla sir t9wd</div>
-      </div>
+    <div class="section-label">Messages</div>
+    <div class="message-box">
+      @forelse ($messages as $message)
+        <div class="message-item">
+          <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+          <div>
+            <div class="fw-bold small">
+              {{ $message->sender->full_name ?? 'Admin' }}
+              <span class="text-muted">
+                • {{ $message->sent_at_human }}
+              </span>
+            </div>
+            <div>{{ $message->content }}</div>
+          </div>
+        </div>
+      @empty
+        <div>No messages available.</div>
+      @endforelse
     </div>
   </div>
 

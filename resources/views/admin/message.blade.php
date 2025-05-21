@@ -2,11 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-<<<<<<< HEAD
-  <title>AubCharika - Messages</title>
-=======
   <title>AubCharika - Send Message</title>
->>>>>>> ayoub
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -33,10 +29,6 @@
       color: white;
     }
 
-<<<<<<< HEAD
-    /* Sidebar */
-=======
->>>>>>> ayoub
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -80,22 +72,13 @@
       margin-right: 10px;
     }
 
-<<<<<<< HEAD
-    /* Main Content */
-=======
->>>>>>> ayoub
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-<<<<<<< HEAD
-    /* User Card */
-.user-card-container {
-=======
     .user-card-container {
->>>>>>> ayoub
       grid-column: 3;
       width: 280px;
       background-color: #000;
@@ -109,12 +92,7 @@
       top: 30px;
     }
 
-<<<<<<< HEAD
-    /* Messages Section */
-    .messages-container {
-=======
     .message-container {
->>>>>>> ayoub
       max-width: 800px;
       margin: 0 auto;
     }
@@ -128,11 +106,7 @@
       box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
     }
 
-<<<<<<< HEAD
-    .messages-section {
-=======
     .message-section {
->>>>>>> ayoub
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
       border-radius: 12px;

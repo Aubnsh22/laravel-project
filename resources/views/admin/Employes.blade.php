@@ -252,6 +252,11 @@
         </a>
       </li>
       <li class="nav-item">
+        <a href="{{ url('set-expected-hours') }}" class="nav-link">
+          <i class="fas fa-cog"></i> Set Schedule
+        </a>
+      </li>
+      <li class="nav-item">
         <a href="{{ url('tasksadmin') }}" class="nav-link">
           <i class="fas fa-tasks"></i> Tasks
         </a>
@@ -324,19 +329,21 @@
         </thead>
         <tbody>
           @forelse ($employees as $employee)
-            <tr>
-              <td>{{ $employee->full_name }}</td>
-              <td>{{ $employee->role }}</td>
-              <td>{{ $employee->department }}</td>
-              <td>
-                <button class="btn btn-sm btn-outline-light action-btn me-2" data-bs-toggle="modal" data-bs-target="#editModal{{ $employee->id }}">Edit</button>
-                <form action="{{ route('employee.destroy', $employee->id) }}" method="POST" style="display:inline;">
-                  @csrf
-                  @method('DELETE')
-                  <button type="submit" class="btn btn-sm btn-outline-danger action-btn" onclick="return confirm('Are you sure you want to delete this employee?')">Remove</button>
-                </form>
-              </td>
-            </tr>
+            @if ($employee->role !== 'admin' && $employee->role !== 'Admin' )
+              <tr>
+                <td>{{ $employee->full_name }}</td>
+                <td>{{ $employee->role }}</td>
+                <td>{{ $employee->department }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-light action-btn me-2" data-bs-toggle="modal" data-bs-target="#editModal{{ $employee->id }}">Edit</button>
+                  <form action="{{ route('employee.destroy', $employee->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-outline-danger action-btn" onclick="return confirm('Are you sure you want to delete this employee?')">Remove</button>
+                  </form>
+                </td>
+              </tr>
+            @endif
           @empty
             <tr>
               <td colspan="4">No employees found.</td>

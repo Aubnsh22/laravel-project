@@ -146,9 +146,6 @@ main {
   margin-top: 20px;
 }
 
-
-
-
 @media (max-width: 992px) {
   .welcome-container {
     gap: 50px;
@@ -168,7 +165,6 @@ main {
   
   .image-container {
     max-width: 400px;
-    
   }
   
   .nav-links {
@@ -200,10 +196,8 @@ main {
   }
 }
 
-
 /* === FORM STYLES === */
-/* === FORM STYLES === */
-.login-form {
+.login-form, .reset-form {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -220,17 +214,17 @@ main {
   box-shadow: 0 10px 35px rgba(174, 97, 20, 0.3);
 }
 
-.login-form h5 {
+.login-form h5, .reset-form h5 {
   color: #dc9016;
   margin-bottom: 30px;
   font-size: 1.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   letter-spacing: 1px;
 }
 
-.login-form input {
+.login-form input, .reset-form input {
   width: 100%;
   padding: 14px 20px;
   margin: 12px 0;
@@ -242,17 +236,17 @@ main {
   transition: all 0.3s ease;
 }
 
-.login-form input::placeholder {
+.login-form input::placeholder, .reset-form input::placeholder {
   color: rgba(0, 0, 0, 0.5);
 }
 
-.login-form input:focus {
+.login-form input:focus, .reset-form input:focus {
   outline: none;
   background: rgba(255, 221, 174, 0.588);
   box-shadow: 0 0 0 2px rgba(220, 144, 22, 0.3);
 }
 
-.login-form button {
+.login-form button, .reset-form button {
   background-color: #dc9016;
   color: white;
   border: none;
@@ -268,14 +262,14 @@ main {
   letter-spacing: 1px;
 }
 
-.login-form button:hover {
+.login-form button:hover, .reset-form button:hover {
   background-color: #e69a1e;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(220, 144, 22, 0.3);
 }
 
 /* Add the "YOUR WORKDAYS" text */
-.login-form::after {
+.login-form::after, .reset-form::after {
   content: "YOUR WORKDAYS";
   display: block;
   color: rgba(255, 255, 255, 0.3);
@@ -285,12 +279,34 @@ main {
   font-weight: 300;
 }
 
-/* Remove blur effect when form is active */
+.forgot-password {
+  background: none;
+  border: none;
+  color: #dc9016;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 15px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
 
+.forgot-password:hover {
+  color: #e69a1e;
+}
+
+/* Remove blur effect when form is active */
 .blur {
   filter: blur(5px);
   height: 100vh;
   overflow: hidden;
+}
+
+/* Hide reset form by default */
+.reset-form {
+  display: none;
 }
 </style>
 </head>
@@ -324,7 +340,7 @@ main {
   </main>
   </div>
 
-  <form class="login-form" method="post" action="{{ route('login') }}">
+  <form class="login-form" method="post" action="{{url('/signin') }}">
     @csrf
     <h5>Welcome Back</h5>
     <input type="text" name="username" placeholder="Username" value="{{ old('username') }}" required>
@@ -336,7 +352,18 @@ main {
         <div class="invalid-feedback d-block">{{ $message }}</div>
     @enderror
     <button type="submit">Sign In</button>
-</form>
+    <button type="button" class="forgot-password" onclick="showResetForm()">Forgot Password?</button>
+  </form>
+
+  <form class="reset-form" method="post" action="{{ route('reset-password') }}">
+    @csrf
+    <h5>Reset Password</h5>
+    <input type="email" name="email" placeholder="Email" required>
+    @error('email')
+        <div class="invalid-feedback d-block">{{ $message }}</div>
+    @enderror
+    <button type="submit">Send Reset Link</button>
+  </form>
 
   <script>
     document.getElementById('blurBackground').addEventListener('click', function() {
@@ -347,6 +374,15 @@ main {
     document.querySelector('.login-form').addEventListener('click', function(e) {
       e.stopPropagation();
     });
+
+    document.querySelector('.reset-form').addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    function showResetForm() {
+      document.querySelector('.login-form').style.display = 'none';
+      document.querySelector('.reset-form').style.display = 'block';
+    }
   </script>
 </body>
 </html>

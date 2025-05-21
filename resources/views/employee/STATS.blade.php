@@ -30,7 +30,6 @@
       color: white;
     }
 
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       height: 100vh;
@@ -74,23 +73,17 @@
       margin-right: 10px;
     }
 
-    /* Main Content */
     .main-content {
       grid-column: 2;
       padding: 30px;
       margin-left: 30px;
     }
 
-    /* User Card */
-    
-
-    /* Stats Container */
     .stats-container {
       max-width: 900px;
       margin: 0 auto;
     }
 
-    /* Stats Tabs */
     .stats-tabs {
       display: flex;
       border-bottom: 1px solid rgba(255, 179, 0, 0.2);
@@ -119,7 +112,6 @@
       background: rgba(255, 179, 0, 0.1);
     }
 
-    /* Stats Cards */
     .stat-card {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
@@ -142,7 +134,6 @@
       margin-bottom: 5px;
     }
 
-    /* Ranking List */
     .ranking-list .list-group-item {
       background: rgba(255, 255, 255, 0.05);
       border: none;
@@ -170,10 +161,6 @@
       background: var(--gold-gradient);
     }
 
-    /* Date & Time Boxes */
-   
-
-    /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -188,8 +175,21 @@
       display: block;
     }
 
-    
-     .user-avatar-small {
+    .user-card-container {
+      grid-column: 3;
+      width: 280px;
+      background-color: #000;
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      height: fit-content;
+      margin-top: 30px;
+      position: sticky;
+      top: 30px;
+    }
+
+    .user-avatar-small {
       width: 30px;
       height: 30px;
       object-fit: cover;
@@ -199,6 +199,7 @@
     #carte {
       background: none !important;
     }
+
     .date-box {
       background: var(--gold-gradient);
       padding: 10px;
@@ -220,6 +221,37 @@
       border-radius: 15px;
       padding: 10px;
       color: black;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .message-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-box::-webkit-scrollbar-track {
+      background: rgba(186, 186, 186, 0.2);
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb {
+      background: white;
+      border-radius: 10px;
+    }
+
+    .message-box::-webkit-scrollbar-thumb:hover {
+      background: white;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .message-item:last-child {
+      margin-bottom: 0;
     }
 
     .user-avatar {
@@ -228,18 +260,44 @@
       object-fit: cover;
       border-radius: 50%;
     }
-    .user-card-container {
-      grid-column: 3;
-      width: 280px;
-      background-color: #000;
-      color: white;
-      border-radius: 10px;
-      padding: 20px;
-      font-family: 'Segoe UI', sans-serif;
-      height: fit-content;
-      margin-top: 30px;
-      position: sticky;
-      top: 30px;
+
+    .profile-dropdown .dropdown-menu {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 179, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    .profile-dropdown .dropdown-item {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 10px 15px;
+      transition: all 0.3s;
+    }
+
+    .profile-dropdown .dropdown-item:hover {
+      background: rgba(255, 179, 0, 0.15);
+      color: #ffc107;
+    }
+
+    .profile-dropdown .dropdown-item i {
+      margin-right: 10px;
+    }
+
+    .rank-circle {
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      border-radius: 50%;
+      background: var(--gold-gradient);
+      color: #000;
+      font-weight: bold;
+    }
+
+    .rank-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -249,39 +307,39 @@
 <div class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <div id="logo" class="text-center mb-4 d-flex align-items-center justify-content-center">
-      <img src="{{asset('images/logo.png')}}" alt="Logo" class="logo me-2">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo me-2">
       <h5 class="text-warning fw-bold mt-1">AubCharika</h5>
     </div>
 
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ url('Clock_In') }}" class="nav-link">
-          <i class="fas fa-clock"></i> Clock In/Out
+        <a href="{{ route('Clock_In') }}" class="nav-link">
+          <i class="fas fa-clock"></i> Pointage
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('history') }}" class="nav-link">
-          <i class="fas fa-history"></i> History
+        <a href="{{ route('employee.history') }}" class="nav-link">
+          <i class="fas fa-history"></i> Historique
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('stats') }}" class="nav-link active">
-          <i class="fas fa-chart-bar"></i> Stats
+        <a href="{{ route('employee.stats') }}" class="nav-link active">
+          <i class="fas fa-chart-bar"></i> Statistiques
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('leave') }}" class="nav-link">
-          <i class="fas fa-plane-departure"></i> leave
+        <a href="{{ route('employee.leave') }}" class="nav-link">
+          <i class="fas fa-plane-departure"></i> Congés
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('tasks') }}" class="nav-link">
-          <i class="fas fa-tasks"></i> Tasks
+        <a href="{{ route('employee.tasks') }}" class="nav-link">
+          <i class="fas fa-tasks"></i> Tâches
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('settings') }}" class="nav-link">
-          <i class="fas fa-cog"></i> Settings
+        <a href="{{ route('employee.setting') }}" class="nav-link">
+          <i class="fas fa-cog"></i> Paramètres
         </a>
       </li>
     </ul>
@@ -290,14 +348,17 @@
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="{{ url('myaccount') }}" class="nav-link">
-          <i class="fas fa-user-circle"></i> My Account
+        <a href="{{ route('employee.account') }}" class="nav-link">
+          <i class="fas fa-user-circle"></i> Mon Compte
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
-        </a>
+        <form action="{{ route('logout') }}" method="POST">
+          @csrf
+          <button type="submit" class="nav-link btn btn-link">
+            <i class="fas fa-sign-out-alt"></i> Déconnexion
+          </button>
+        </form>
       </li>
     </ul>
   </div>
@@ -307,18 +368,16 @@
 <div class="main-content">
   <div class="stats-container">
     <h2 class="mb-4 text-warning fw-bold">
-      <i class="fas fa-chart-pie me-2"></i>Statistics table
+      <i class="fas fa-chart-pie me-2"></i>Tableau de Statistiques
     </h2>
 
-  </div>
-    
     <!-- Navigation par onglets -->
     <div class="stats-tabs">
       <div class="stats-tab active" data-target="hours-tab">
-        <i class="fas fa-clock me-2"></i>Hours/day
+        <i class="fas fa-clock me-2"></i>Heures/Jour
       </div>
       <div class="stats-tab" data-target="productivity-tab">
-        <i class="fas fa-trend-up me-2"></i>Productivity
+        <i class="fas fa-trend-up me-2"></i>Productivité
       </div>
       <div class="stats-tab" data-target="ranking-tab">
         <i class="fas fa-trophy me-2"></i>Classement
@@ -330,15 +389,15 @@
       <div class="stat-card">
         <div class="row align-items-center">
           <div class="col-md-4 text-center mb-4 mb-md-0">
-            <div class="average-hours">7.2h</div>
-            <div class="text-warning mb-3">Daily Average</div>
+            <div class="average-hours">{{ $dailyAverage }}h</div>
+            <div class="text-warning mb-3">Moyenne Quotidienne</div>
             <div class="d-flex justify-content-center gap-3">
               <div class="text-center">
-                <div class="fw-bold">+12%</div>
-                <small>vs last week</small>
+                <div class="fw-bold">{{ $weeklyChange >= 0 ? '+' : '' }}{{ $weeklyChange }}%</div>
+                <small>vs semaine dernière</small>
               </div>
               <div class="text-center">
-                <div class="fw-bold">35h</div>
+                <div class="fw-bold">{{ $totalHoursMonth }}h</div>
                 <small>ce mois</small>
               </div>
             </div>
@@ -424,13 +483,25 @@
 </div>
 
 <!-- User Card -->
-<div id="carte" class="user-card-container mr-5">
+<div id="carte" class="user-card-container me-5">
   <div class="user-header d-flex align-items-center justify-content-between mb-3">
     <div>
-      <h6 class="fw-bold mb-0">Saad Nassih</h6>
-      <small>employee</small>
+      <h6 class="fw-bold mb-0">{{ $user->full_name }}</h6>
+      <small>{{ $user->role ?? 'Employé' }}</small>
     </div>
-    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
+    <div class="profile-dropdown dropdown">
+      <img src="{{ $user->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : 'https://randomuser.me/api/portraits/women/44.jpg' }}" alt="avatar" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ route('employee.account') }}"><i class="fas fa-user-circle"></i> Mon Compte</a></li>
+        <li>
+          <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+          </form>
+        </li>
+        <li><a class="dropdown-item" href="{{ route('set.profile.picture') }}"><i class="fas fa-camera"></i> Changer Photo de Profil</a></li>
+      </ul>
+    </div>
   </div>
 
   <div class="section-label">Date</div>
@@ -448,17 +519,32 @@
     </div>
   </div>
 
-  <div class="section-label">Message</div>
-  <div class="message-box d-flex align-items-start gap-2">
-    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-    <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-      <div>Khdm mgwd wla sir t9wd</div>
-    </div>
+  <div class="section-label">Messages</div>
+  <div class="message-box">
+    @forelse ($messages as $message)
+      <div class="message-item">
+        <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+        <div>
+          <div class="fw-bold small">
+            {{ $message->sender->full_name ?? 'Admin' }}
+            <span class="text-muted">
+              • {{ $message->sent_at_human }}
+            </span>
+          </div>
+          <div>{{ $message->content }}</div>
+        </div>
+      </div>
+    @empty
+      <div>Aucun message disponible.</div>
+    @endforelse
   </div>
 </div>
 
 <script>
+  // Pass data to JavaScript
+  const hoursPerDay = @json($hoursPerDay);
+  const employees = @json($employees);
+
   // Navigation par onglets
   document.querySelectorAll('.stats-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -478,7 +564,7 @@
       labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
       datasets: [{
         label: 'Heures travaillées',
-        data: [7.5, 6.8, 8.2, 7.0, 6.5, 4.0, 0],
+        data: hoursPerDay,
         backgroundColor: 'rgba(255, 179, 0, 0.7)',
         borderColor: 'rgba(255, 179, 0, 1)',
         borderWidth: 1,
@@ -518,7 +604,7 @@
     }
   });
 
-  // Graphique Productivité
+  // Graphique Productivité (Statique)
   const productivityCtx = document.getElementById('productivityChart').getContext('2d');
   new Chart(productivityCtx, {
     type: 'line',
@@ -577,23 +663,14 @@
   });
 
   // Classement employés
-  const employees = [
-    { name: "Sophie Martin", position: "Développeuse Fullstack", score: 94, trend: "up" },
-    { name: "Thomas Leroy", position: "UX Designer", score: 89, trend: "down" },
-    { name: "Vous", position: "Développeur Backend", score: 87, trend: "up", you: true },
-    { name: "Julie Bernard", position: "Product Manager", score: 85, trend: "up" },
-    { name: "Nicolas Petit", position: "Développeur Frontend", score: 82, trend: "stable" },
-    { name: "Amélie Dupont", position: "QA Engineer", score: 80, trend: "down" }
-  ];
-
   const rankingList = document.getElementById('rankingList');
   employees.forEach(emp => {
     const item = document.createElement('div');
     item.className = `list-group-item ${emp.you ? 'you-indicator' : ''}`;
     
     let trendIcon = '';
-    if (emp.trend === "up") trendIcon = '<i class="fas fa-arrow-up text-success me-1"></i>';
-    else if (emp.trend === "down") trendIcon = '<i class="fas fa-arrow-down text-danger me-1"></i>';
+    if (emp.trend === 'up') trendIcon = '<i class="fas fa-arrow-up text-success me-1"></i>';
+    else if (emp.trend === 'down') trendIcon = '<i class="fas fa-arrow-down text-danger me-1"></i>';
     else trendIcon = '<i class="fas fa-minus text-secondary me-1"></i>';
     
     item.innerHTML = `
@@ -621,12 +698,10 @@
   // Mise à jour date et heure
   function updateDateTime() {
     const now = new Date();
-    const options = { month: 'short', weekday: 'long' };
-    
     document.getElementById('year').textContent = now.getFullYear();
-    document.getElementById('month').textContent = now.toLocaleDateString('fr-FR', { month: 'short' });
+    document.getElementById('month').textContent = now.toLocaleString('fr-FR', { month: 'short' });
     document.getElementById('day').textContent = now.getDate();
-    document.getElementById('weekday').textContent = now.toLocaleDateString('fr-FR', { weekday: 'long' });
+    document.getElementById('weekday').textContent = now.toLocaleString('fr-FR', { weekday: 'long' });
     
     let hours = now.getHours();
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -646,5 +721,8 @@
     document.querySelector('.stats-container').style.opacity = '1';
   });
 </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

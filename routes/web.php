@@ -5,41 +5,64 @@ use App\Http\Controllers\ClockController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\AuthentificationController;
+use App\Http\Controllers\PasswordResetController;
 
-// Auth
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group.
+|
+*/
+
+// Password Reset Routes
+Route::get('/forgot-password', [AuthentificationController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [AuthentificationController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [AuthentificationController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [AuthentificationController::class, 'resetPassword'])->name('password.update');
+Route::post('/reset-password', [PasswordResetController::class, 'sendResetCode'])->name('reset-password');
+Route::patch('/reset-password', [PasswordResetController::class, 'verifyResetCode']);
+Route::delete('/reset-password', [PasswordResetController::class, 'updatePassword']);
+
+// Auth Routes
 Route::post('/signin', [AuthentificationController::class, 'Authent'])->name('login');
 Route::post('/logout', [AuthentificationController::class, 'logout'])->name('logout');
 
-// Welcome + Login
+// Welcome and Login Routes
 Route::get('/welcome', [WelcomeController::class, 'Welcome'])->name('welcome');
 Route::get('/signin', [WelcomeController::class, 'Sign_In'])->name('signin');
 
-// Employee
+// Employee Routes
 Route::middleware('auth')->group(function () {
-    // Clock-In routes
+    // Clock-In/Out Routes
     Route::get('/Clock-In', [ClockController::class, 'showClockIn'])->name('Clock_In');
     Route::post('/Clock-In', [ClockController::class, 'storeClockIn']);
-
     Route::get('/Clock-Out', [ClockController::class, 'showClockOut'])->name('Clock_Out');
     Route::post('/Clock-Out', [ClockController::class, 'storeClockOut']);
 
-    Route::get('/leave', function () {
-        return view('employee.LEAVE');
-    })->name('employee.leave');
+    // Leave Routes
+    Route::get('/leave', [ClockController::class, 'Leave'])->name('employee.leave');
     Route::post('/leave', [AuthentificationController::class, 'storeLeaveRequest'])->name('leave.store');
+
+    // Other Employee Routes
     Route::get('/history', [ClockController::class, 'History'])->name('employee.history');
     Route::get('/stats', [ClockController::class, 'Stats'])->name('employee.stats');
     Route::get('/settings', [ClockController::class, 'Settings'])->name('employee.setting');
     Route::get('/myaccount', [ClockController::class, 'MyAccount'])->name('employee.account');
     Route::get('/tasks', [ClockController::class, 'Tasks'])->name('employee.tasks');
+
+    // Account Management Routes
     Route::post('/password/update', [AuthentificationController::class, 'changePassword'])->name('password.update');
     Route::get('/set-profile-picture', [AuthentificationController::class, 'showSetProfilePictureForm'])->name('set.profile.picture');
     Route::post('/set-profile-picture', [AuthentificationController::class, 'storeProfilePicture'])->name('store.profile.picture');
 });
 
-// Admin
+// Admin Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/sign', [AdminController::class, 'index']);
+    Route::get('/sign', [AdminController::class, 'index'])->name('login');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/employees', [AuthentificationController::class, 'employes'])->name('admin.employees');
     Route::get('/tasksadmin', [AdminController::class, 'Tasks'])->name('admin.tasks');
@@ -53,13 +76,20 @@ Route::middleware('auth')->group(function () {
     Route::delete('/employees/{id}', [AuthentificationController::class, 'destroy'])->name('employee.destroy');
     Route::put('/employees/{id}', [AuthentificationController::class, 'update'])->name('employee.update');
 
-    #message
+    // Message Routes
     Route::get('/sendmessage', [AuthentificationController::class, 'showSendMessageForm'])->name('send.message');
     Route::post('/sendmessage', [AuthentificationController::class, 'storeMessage'])->name('messages.store');
 
-    # Expected Hours
+    // Expected Hours Routes
     Route::get('/set-expected-hours', [AuthentificationController::class, 'showSetExpectedHoursForm'])->name('set.expected.hours');
-    Route::post('/set-expected-hours', [AuthentificationController::class, 'storeExpectedHours'])->name('store.expected.hours');
+    Route::post('/store-expected-hours', [AuthentificationController::class, 'storeExpectedHours'])->name('store.expected.hours');
+    Route::delete('/expected-hours/{id}', [AuthentificationController::class, 'deleteExpectedHours'])->name('delete.expected.hours');
+
+    // Attendance by Date Route
+    Route::post('/get-attendance-by-date', [AdminController::class, 'getAttendanceByDate'])->name('get-attendance-by-date');
 });
 
+// Admin Message Route
 Route::get('/message', [AdminController::class, 'msg'])->name('admin.message')->middleware('auth');
+
+?>

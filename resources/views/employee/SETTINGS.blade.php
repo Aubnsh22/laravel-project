@@ -389,14 +389,25 @@
     </div>
   </div>
 
-  <div class="section-label">Message</div>
-  <div class="message-box d-flex align-items-start gap-2">
-    <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
-    <div>
-      <div class="fw-bold small">Mr Ayoub Nassih <span class="text-muted">• 1 Minute Ago</span></div>
-      <div>Khdm mgwd wla sir t9wd</div>
+     <div class="section-label">Messages</div>
+    <div class="message-box">
+      @forelse ($messages as $message)
+        <div class="message-item">
+          <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
+          <div>
+            <div class="fw-bold small">
+              {{ $message->sender->full_name ?? 'Admin' }}
+              <span class="text-muted">
+                • {{ $message->sent_at_human }}
+              </span>
+            </div>
+            <div>{{ $message->content }}</div>
+          </div>
+        </div>
+      @empty
+        <div>No messages available.</div>
+      @endforelse
     </div>
-  </div>
 </div>
   <script>
     // Function to update date and time
