@@ -367,41 +367,41 @@
     </div>
 
     <!-- Search Form -->
-    <form class="row g-3 mb-4 search-form">
-      <div class="col-md-4">
-        <input type="week" class="form-control" placeholder="Select Week" id="weekFilter">
-      </div>
-      <div class="col-md-3">
-        <select class="form-select" id="monthFilter">
-          <option selected>Month</option>
-          <option>January</option>
-          <option>February</option>
-          <option>March</option>
-          <option>April</option>
-          <option>May</option>
-          <option>June</option>
-          <option>July</option>
-          <option>August</option>
-          <option>September</option>
-          <option>October</option>
-          <option>November</option>
-          <option>December</option>
-        </select>
-      </div>
-      <div class="col-md-3">
-        <select class="form-select" id="yearFilter">
-          <option selected>Year</option>
-          <option>2025</option>
-          <option>2024</option>
-          <option>2023</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <button class="btn w-100" type="button">
-          <i class="fas fa-search me-1"></i> Search
-        </button>
-      </div>
-    </form>
+    <form class="row g-3 mb-4 search-form" action="{{ route('history') }}" method="GET">
+  <div class="col-md-4">
+    <input type="week" class="form-control" name="week" placeholder="Select Week" value="{{ old('week', request()->input('week')) }}">
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" name="month">
+      <option value="">Month</option>
+      <option value="January" {{ old('month', request()->input('month')) == 'January' ? 'selected' : '' }}>January</option>
+      <option value="February" {{ old('month', request()->input('month')) == 'February' ? 'selected' : '' }}>February</option>
+      <option value="March" {{ old('month', request()->input('month')) == 'March' ? 'selected' : '' }}>March</option>
+      <option value="April" {{ old('month', request()->input('month')) == 'April' ? 'selected' : '' }}>April</option>
+      <option value="May" {{ old('month', request()->input('month')) == 'May' ? 'selected' : '' }}>May</option>
+      <option value="June" {{ old('month', request()->input('month')) == 'June' ? 'selected' : '' }}>June</option>
+      <option value="July" {{ old('month', request()->input('month')) == 'July' ? 'selected' : '' }}>July</option>
+      <option value="August" {{ old('month', request()->input('month')) == 'August' ? 'selected' : '' }}>August</option>
+      <option value="September" {{ old('month', request()->input('month')) == 'September' ? 'selected' : '' }}>September</option>
+      <option value="October" {{ old('month', request()->input('month')) == 'October' ? 'selected' : '' }}>October</option>
+      <option value="November" {{ old('month', request()->input('month')) == 'November' ? 'selected' : '' }}>November</option>
+      <option value="December" {{ old('month', request()->input('month')) == 'December' ? 'selected' : '' }}>December</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" name="year">
+      <option value="">Year</option>
+      <option value="2025" {{ old('year', request()->input('year')) == '2025' ? 'selected' : '' }}>2025</option>
+      <option value="2024" {{ old('year', request()->input('year')) == '2024' ? 'selected' : '' }}>2024</option>
+      <option value="2023" {{ old('year', request()->input('year')) == '2023' ? 'selected' : '' }}>2023</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn w-100" type="submit">
+      <i class="fas fa-search me-1"></i> Search
+    </button>
+  </div>
+</form>
 
     <!-- Current Clock-In Status -->
     @if($isClockedIn && $currentAttendance)

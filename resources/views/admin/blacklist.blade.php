@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AubCharika - Requests</title>
+  <title>AubCharika - Blacklist</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -92,7 +92,7 @@
       top: 30px;
     }
 
-    .requests-container {
+    .blacklist-container {
       max-width: 800px;
       margin: 0 auto;
     }
@@ -106,7 +106,7 @@
       box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
     }
 
-    .requests-section {
+    .blacklist-section {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
       border-radius: 12px;
@@ -114,23 +114,23 @@
       border: 1px solid rgba(255, 179, 0, 0.2);
     }
 
-    .request-table {
+    .blacklist-table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    .request-table th, .request-table td {
+    .blacklist-table th, .blacklist-table td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid rgba(255, 179, 0, 0.2);
     }
 
-    .request-table th {
+    .blacklist-table th {
       background: rgba(255, 179, 0, 0.15);
       color: #ffc107;
     }
 
-    .request-table tr:hover {
+    .blacklist-table tr:hover {
       background: rgba(255, 255, 255, 0.05);
     }
 
@@ -201,24 +201,34 @@
     }
 
     .modal-content {
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      border: 1px solid rgba(255, 179, 0, 0.2);
+    }
+
+    .modal-header {
+      border-bottom: 1px solid rgba(255, 179, 0, 0.2);
+    }
+
+    .modal-footer {
+      border-top: 1px solid rgba(255, 179, 0, 0.2);
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 179, 0, 0.2);
       color: white;
     }
 
-    .modal-header, .modal-footer {
-      border: none;
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #ffc107;
+      color: white;
+      box-shadow: none;
     }
 
-    .modal-title {
+    .form-label {
       color: #ffc107;
-    }
-
-    .certificate-section img, .certificate-section object {
-      max-width: 100%;
-      border: 1px solid rgba(255, 179, 0, 0.2);
-      border-radius: 8px;
     }
   </style>
 </head>
@@ -232,12 +242,12 @@
     </div>
     <ul id="elements" class="nav flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ route('dashboard') }}" class="nav-link">
+        <a href="{{ url('dashboard') }}" class="nav-link">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ route('admin.employees') }}" class="nav-link">
+        <a href="{{ url('employees') }}" class="nav-link">
           <i class="fas fa-users"></i> Employees
         </a>
       </li>
@@ -247,12 +257,12 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ route('statistics') }}" class="nav-link">
+        <a href="{{ url('statistics') }}" class="nav-link">
           <i class="fas fa-chart-bar"></i> Statistics
         </a>
       </li>
       <li class="nav-item">
-        <a id="page" href="{{ url('settingsadmin') }}" class="nav-link active">
+        <a href="{{ url('requests') }}" class="nav-link">
           <i class="fas fa-envelope"></i> Requests
         </a>
       </li>
@@ -262,7 +272,12 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ route('settings') }}" class="nav-link">
+        <a href="{{ url('blacklist') }}" class="nav-link active">
+          <i class="fas fa-ban"></i> Blacklist
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('settingsadmin') }}" class="nav-link">
           <i class="fas fa-cog"></i> Settings
         </a>
       </li>
@@ -271,12 +286,12 @@
   <div>
     <ul id="Elements2" class="nav nav-pills flex-column">
       <li class="nav-item">
-        <a href="{{ route('myaccountt') }}" class="nav-link">
+        <a href="{{ url('myaccountt') }}" class="nav-link">
           <i class="fas fa-user-circle"></i> My Account
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ route('logout') }}" class="nav-link">
+        <a href="#" class="nav-link">
           <i class="fas fa-sign-out-alt"></i> Sign Out
         </a>
       </li>
@@ -286,10 +301,10 @@
 
 <!-- Main Content -->
 <div class="main-content">
-  <div class="requests-container">
+  <div class="blacklist-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="search-bar">
-        <input type="text" class="form-control" placeholder="Search Requests...">
+        <input type="text" class="form-control" placeholder="Search Blacklisted Users...">
       </div>
       <div class="notification-icon">
         <button class="btn rounded-circle">
@@ -297,115 +312,88 @@
         </button>
       </div>
     </div>
-
-   <div class="hero-section">
-  <h1 class="fw-bold mb-3">Request Management<br>Overview</h1>
-  <a href="{{ route('all.requests') }}" class="btn btn-dark fw-semibold me-3">View All Requests</a>
-  
-</div>
-
-    <div class="requests-section">
-      <h4 class="mb-4">Pending Requests</h4>
+    <div class="hero-section">
+      <h1 class="fw-bold mb-3">Blacklist Management<br>Overview</h1>
+      <button class="btn btn-dark fw-semibold me-3" data-bs-toggle="modal" data-bs-target="#addToBlacklistModal">Add to Blacklist</button>
+      <button class="btn btn-outline-dark fw-semibold">Export Data</button>
+    </div>
+    <div class="blacklist-section">
+      <h4 class="mb-4">Blacklisted Users</h4>
       @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
       @endif
       @if (session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
       @endif
-      <table class="request-table">
+      <table class="blacklist-table">
         <thead>
           <tr>
-            <th>Employee</th>
-            <th>Request Type</th>
-            <th>Submitted</th>
-            <th>Duration</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Department</th>
             <th>Status</th>
-            <th>Certificate</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          @forelse ($requests as $request)
+          @forelse ($blacklistedUsers as $user)
             <tr>
-              <td>{{ $request->user->full_name }}</td>
-              <td>{{ ucfirst($request->leave_type) }} Leave</td>
-              <td>{{ $request->created_at->format('Y-m-d') }}</td>
+              <td>{{ $user->full_name }}</td>
+              <td>{{ $user->role }}</td>
+              <td>{{ $user->department }}</td>
               <td>
-                {{ \Carbon\Carbon::parse($request->start_date)->diffInDays(\Carbon\Carbon::parse($request->end_date)) + 1 }} days
-              </td>
-              <td>
-                <span class="badge {{ $request->status == 'approved' ? 'bg-success' : ($request->status == 'denied' ? 'bg-danger' : 'bg-warning') }}">
-                  {{ ucfirst($request->status) }}
+                <span class="badge {{ $user->status == 'blocked' ? 'bg-danger' : 'bg-success' }}">
+                  {{ ucfirst($user->status) }}
                 </span>
               </td>
               <td>
-                @if ($request->certificate_path)
-                  <a href="#" class="text-info text-decoration-none view-details-btn"
-                     data-bs-toggle="modal"
-                     data-bs-target="#requestDetailsModal"
-                     data-employee="{{ $request->user->full_name }}"
-                     data-type="{{ ucfirst($request->leave_type) }} Leave"
-                     data-start-date="{{ $request->start_date }}"
-                     data-end-date="{{ $request->end_date }}"
-                     data-message="{{ $request->message }}"
-                     data-certificate-path="{{ $request->certificate_path ? asset('storage/' . $request->certificate_path) : '' }}"
-                     data-extension="{{ $request->certificate_path ? pathinfo($request->certificate_path, PATHINFO_EXTENSION) : '' }}"
-                     data-request-id="{{ $request->id }}">
-                    View
-                  </a>
-                @else
-                  <span class="text-muted">N/A</span>
-                @endif
-              </td>
-              <td>
-                @if ($request->status == 'pending')
-                  <form action="{{ route('requests.approve', $request->id) }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-success action-btn me-2">Approve</button>
-                  </form>
-                  <form action="{{ route('requests.deny', $request->id) }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger action-btn">Deny</button>
-                  </form>
-                @else
-                  <span>-</span>
-                @endif
+                <form action="{{ route('blacklist.remove', $user->id) }}" method="POST" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger action-btn" onclick="return confirm('Are you sure you want to remove this user from the blacklist?')">Remove</button>
+                </form>
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center">No pending requests found.</td>
+              <td colspan="5">No blacklisted users found.</td>
             </tr>
           @endforelse
         </tbody>
       </table>
     </div>
+  </div>
+</div>
 
-    <!-- Modal for Request Details -->
-    <div class="modal fade" id="requestDetailsModal" tabindex="-1" aria-labelledby="requestDetailsModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="requestDetailsModalLabel">Leave Request Details</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p><strong>Employee:</strong> <span id="modal-employee"></span></p>
-            <p><strong>Type:</strong> <span id="modal-type"></span></p>
-            <p><strong>Dates:</strong> <span id="modal-start-date"></span> to <span id="modal-end-date"></span></p>
-            <p><strong>Message:</strong> <span id="modal-message"></span></p>
-            <div class="certificate-section mt-4" id="modal-certificate-section">
-              <h5 class="mb-3">Medical Certificate</h5>
-              <div id="modal-certificate-content"></div>
-              <div id="modal-download-link"></div>
+<!-- Add to Blacklist Modal -->
+<div class="modal fade" id="addToBlacklistModal" tabindex="-1" aria-labelledby="addToBlacklistModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addToBlacklistModalLabel">Add User to Blacklist</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ route('blacklist.add') }}" method="POST">
+        @csrf
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <label for="userId" class="form-label">Select User</label>
+              <select class="form-control" id="userId" name="user_id" required>
+                <option value="" disabled selected>Select a user</option>
+                @foreach ($availableUsers as $user)
+                  <option value="{{ $user->id }}">{{ $user->full_name }} ({{ $user->username }})</option>
+                @endforeach
+              </select>
+              @error('user_id') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
-            <p class="text-muted mt-4" id="modal-no-certificate" style="display: none;">No medical certificate uploaded.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-warning" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Add to Blacklist</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -419,7 +407,6 @@
     </div>
     <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="avatar" class="user-avatar">
   </div>
-
   <div class="section-label">Date</div>
   <div class="d-flex align-items-center gap-2 mb-3">
     <div class="date-box text-center">
@@ -434,7 +421,6 @@
       <div class="text-uppercase small text-primary" id="ampm"></div>
     </div>
   </div>
-
   <div class="section-label">Message</div>
   <div class="message-box d-flex align-items-start gap-2">
     <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="avatar" class="user-avatar-small">
@@ -462,68 +448,8 @@
     document.getElementById('minute').textContent = minutes;
     document.getElementById('ampm').textContent = ampm;
   }
-
   updateDateTime();
   setInterval(updateDateTime, 60000);
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const modal = document.getElementById('requestDetailsModal');
-    modal.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      const employee = button.getAttribute('data-employee');
-      const type = button.getAttribute('data-type');
-      const startDate = button.getAttribute('data-start-date');
-      const endDate = button.getAttribute('data-end-date');
-      const message = button.getAttribute('data-message');
-      const certificatePath = button.getAttribute('data-certificate-path');
-      const extension = button.getAttribute('data-extension').toLowerCase();
-      const requestId = button.getAttribute('data-request-id');
-
-      document.getElementById('modal-employee').textContent = employee;
-      document.getElementById('modal-type').textContent = type;
-      document.getElementById('modal-start-date').textContent = startDate;
-      document.getElementById('modal-end-date').textContent = endDate;
-      document.getElementById('modal-message').textContent = message;
-
-      const certificateSection = document.getElementById('modal-certificate-section');
-      const certificateContent = document.getElementById('modal-certificate-content');
-      const downloadLinkContainer = document.getElementById('modal-download-link');
-      const noCertificateMessage = document.getElementById('modal-no-certificate');
-
-      if (certificatePath && extension) {
-        certificateSection.style.display = 'block';
-        noCertificateMessage.style.display = 'none';
-        certificateContent.innerHTML = '';
-        downloadLinkContainer.innerHTML = '';
-
-        if (['jpg', 'jpeg', 'png'].includes(extension)) {
-          const img = document.createElement('img');
-          img.src = certificatePath;
-          img.alt = 'Medical Certificate';
-          img.className = 'img-fluid';
-          certificateContent.appendChild(img);
-        } else {
-          const object = document.createElement('object');
-          object.data = certificatePath;
-          object.type = 'application/pdf';
-          object.width = '100%';
-          object.height = '500px';
-          object.innerHTML = `<p>Download PDF.</p>`;
-          certificateContent.appendChild(object);
-
-          // Add the download link dynamically
-          const downloadLink = document.createElement('a');
-          downloadLink.href = `/requests/${requestId}/download`; // Use the route directly
-          downloadLink.className = 'btn btn-outline-warning mt-2';
-          downloadLink.textContent = 'Download PDF';
-          downloadLinkContainer.appendChild(downloadLink);
-        }
-      } else {
-        certificateSection.style.display = 'none';
-        noCertificateMessage.style.display = 'block';
-      }
-    });
-  });
 </script>
 </body>
 </html>

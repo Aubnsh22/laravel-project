@@ -400,132 +400,47 @@ class ClockController extends Controller
             'messages' => $messages
         ]);
     }
+    
+   public function History(Request $request)
+{
+    $user = Auth::user();
+    \Log::info('Fetching attendance for user ID: ' . $user->id);
 
-    // Display History page
-    public function History()
-    {
-        $user = Auth::user();
-        \Log::info('Fetching attendance for user ID: ' . $user->id);
-        $attendances = Attendance::where('user_id', $user->id)
-            ->orderBy('date', 'desc')
-            ->get();
-        \Log::info('Retrieved attendances: ' . $attendances->toJson());
+    $query = Attendance::where('user_id', $user->id);
 
-        $attendanceData = $attendances->map(function ($attendance) {
-            $totalHours = '-';
-            if ($attendance->clock_in && !$attendance->clock_out) {
-                $totalHours = Carbon::parse($attendance->clock_in, 'Africa/Casablanca')->diffInHours(Carbon::now('Africa/Casablanca')) . 'h (In Progress)';
-            } elseif ($attendance->clock_in && $attendance->clock_out) {
-                try {
-                    $hours = $attendance->hoursWorked();
-                    $totalHours = $hours > 0 ? number_format($hours, 1) . 'h' : '-';
-                } catch (\Exception $e) {
-                    \Log::error('Error calculating hoursWorked for attendance ID: ' . $attendance->id . '. Error: ' . $e->getMessage());
-                    $totalHours = '-';
-                }
-            }
-
-            return [
-                $attendance->date->format('Y-m-d'),
-                $attendance->date->format('l'),
-                $attendance->clock_in && $attendance->clock_out ? 'Present' : ($attendance->clock_in ? 'In Progress' : 'Incomplete'),
-                $attendance->clock_in ? Carbon::parse($attendance->clock_in, 'Africa/Casablanca')->format('h:i A') : '-',
-                $attendance->clock_out ? Carbon::parse($attendance->clock_out, 'Africa/Casablanca')->format('h:i A') : '-',
-                $totalHours
-            ];
-        })->toArray();
-
-        $messages = $this->getUserMessages();
-
-        $today = Carbon::today('Africa/Casablanca');
-        $currentAttendance = Attendance::where('user_id', $user->id)
-            ->where('date', $today->toDateString())
-            ->first();
-        $isClockedIn = $currentAttendance ? $currentAttendance->isClockedIn() : false;
-
-        $daysWorked = $attendances->filter(function ($attendance) {
-            return $attendance->clock_in && $attendance->clock_out;
-        })->count();
-
-        $totalHours = $attendances->sum(function ($attendance) {
-            if ($attendance->clock_in && !$attendance->clock_out) {
-                return Carbon::parse($attendance->clock_in, 'Africa/Casablanca')->diffInHours(Carbon::now('Africa/Casablanca'));
-            }
-            try {
-                return $attendance->hoursWorked();
-            } catch (\Exception $e) {
-                \Log::error('Error in total hours calculation for attendance ID: ' . $attendance->id . '. Error: ' . $e->getMessage());
-                return 0;
-            }
-        });
-
-        $weeklyExpectedHours = 0;
-        foreach ($attendances as $attendance) {
-            $weekStart = Carbon::parse($attendance->date, 'Africa/Casablanca')->startOfWeek(Carbon::MONDAY);
-            $expectedHours = ExpectedHours::where('week_start_date', $weekStart->toDateString())->first();
-            if ($expectedHours) {
-                $dayName = strtolower(Carbon::parse($attendance->date, 'Africa/Casablanca')->format('l'));
-                $weeklyExpectedHours += $expectedHours->expectedHoursForDay($dayName);
-            }
-        }
-
-        $targetAchieved = $weeklyExpectedHours > 0 ? ($totalHours / $weeklyExpectedHours) * 100 : 0;
-        $dailyAvg = $daysWorked > 0 ? $totalHours / $daysWorked : 0;
-        $daysAbsent = $attendances->filter(function ($attendance) {
-            return !$attendance->clock_in || !$attendance->clock_out;
-        })->count();
-
-        return view('employee.history', compact(
-            'attendanceData',
-            'messages',
-            'isClockedIn',
-            'currentAttendance',
-            'daysWorked',
-            'totalHours',
-            'weeklyExpectedHours',
-            'targetAchieved',
-            'dailyAvg',
-            'daysAbsent'
-        ));
+    // Apply filters based on request
+    if ($request->has('week') && !empty($request->input('week'))) {
+        $week = Carbon::parse($request->input('week'));
+        $startOfWeek = $week->startOfWeek()->toDateString();
+        $endOfWeek = $week->endOfWeek()->toDateString();
+        $query->whereBetween('date', [$startOfWeek, $endOfWeek]);
     }
 
-    // Display Clock-In page (alternative entry point)
-    public function index()
-    {
-        $user = Auth::user();
-        $today = Carbon::today('Africa/Casablanca');
-        $attendance = Attendance::where('user_id', $user->id)
-            ->where('date', $today->toDateString())
-            ->latest()
-            ->first();
-
-        $isClockedIn = $attendance && !$attendance->clock_out;
-        $hasClockedOut = $attendance && $attendance->clock_out !== null;
-
-        $messages = $this->getUserMessages();
-
-        $expectedTimes = $this->getTodayExpectedHours();
-        $timeMessage = null;
-
-        if ($hasClockedOut) {
-            $nextDay = $today->copy()->addDay()->format('F j, Y');
-            $timeMessage = "You have already clocked in and out today. Please wait until tomorrow, $nextDay, to clock in again.";
-        } elseif ($expectedTimes && $expectedTimes['start_time'] && $expectedTimes['end_time']) {
-            $startTime = Carbon::parse($expectedTimes['start_time'], 'Africa/Casablanca');
-            $endTime = Carbon::parse($expectedTimes['end_time'], 'Africa/Casablanca');
-            $currentTime = Carbon::now('Africa/Casablanca');
-
-            \Log::info('Index - Current Time: ' . $currentTime->toDateTimeString());
-            \Log::info('Index - Start Time: ' . $startTime->toDateTimeString());
-            \Log::info('Index - End Time: ' . $endTime->toDateTimeString());
-
-            if ($currentTime->lt($startTime)) {
-                $timeMessage = "It's too early to clock in. Please wait until " . $startTime->format('h:i A') . ".";
-            } elseif ($currentTime->gt($endTime)) {
-                $timeMessage = "It's too late to clock in. The clock-in window closed at " . $endTime->format('h:i A') . ".";
-            }
-        }
-
-        return view('clock-in', compact('isClockedIn', 'attendance', 'expectedTimes', 'timeMessage', 'messages'));
+    if ($request->has('month') && !empty($request->input('month'))) {
+        $month = $request->input('month');
+        $year = $request->input('year') ?: date('Y');
+        $query->whereMonth('date', Carbon::parse($month)->month)->whereYear('date', $year);
     }
+
+    if ($request->has('year') && !empty($request->input('year'))) {
+        $query->whereYear('date', $request->input('year'));
+    }
+
+    $attendances = $query->orderBy('date', 'desc')->get();
+    \Log::info('Retrieved attendances: ' . $attendances->toJson());
+
+    $authController = new AuthentificationController();
+    $messages = $authController->getUserMessages() ?? collect();
+    $messages->each(function ($message) {
+        $message->sent_at_human = Carbon::parse($message->sent_at)->diffForHumans();
+    });
+
+    $today = Carbon::today();
+    $currentAttendance = Attendance::where('user_id', $user->id)
+        ->where('date', $today->toDateString())
+        ->first();
+    $isClockedIn = $currentAttendance ? $currentAttendance->isClockedIn() : false;
+
+    return view('employee.history', compact('attendances', 'messages', 'isClockedIn', 'currentAttendance'));
+}
 }

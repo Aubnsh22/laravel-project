@@ -282,8 +282,13 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ url('settingsadmin') }}" class="nav-link">
-          <i class="fas fa-cog"></i> Paramètres
+        <a href="{{ url('blacklist') }}" class="nav-link active">
+          <i class="fas fa-ban"></i> Blacklist
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('settings') }}" class="nav-link">
+          <i class="fas fa-cog"></i> Settings
         </a>
       </li>
     </ul>

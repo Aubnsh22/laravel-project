@@ -43,24 +43,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/Clock-Out', [ClockController::class, 'showClockOut'])->name('Clock_Out');
     Route::post('/Clock-Out', [ClockController::class, 'storeClockOut']);
 
-    // Leave Routes
-    Route::get('/leave', [ClockController::class, 'Leave'])->name('employee.leave');
-    Route::post('/leave', [AuthentificationController::class, 'storeLeaveRequest'])->name('leave.store');
+    // Leave management routes
+    Route::get('/leave', [LeaveRequest::class, 'index'])->name('employee.leave');
+    Route::post('/leave', [LeaveRequest::class, 'store'])->name('leave.store');
+    Route::get('/leave/{id}/edit', [LeaveRequest::class, 'edit'])->name('leave.edit');
+    Route::put('/leave/{id}', [LeaveRequest::class, 'update'])->name('leave.update');
+    Route::delete('/leave/{id}', [LeaveRequest::class, 'destroy'])->name('leave.delete');
 
-    // Other Employee Routes
+    // History, Stats, Settings, Account, and Tasks routes
     Route::get('/history', [ClockController::class, 'History'])->name('employee.history');
     Route::get('/stats', [ClockController::class, 'Stats'])->name('employee.stats');
     Route::get('/settings', [ClockController::class, 'Settings'])->name('employee.setting');
     Route::get('/myaccount', [ClockController::class, 'MyAccount'])->name('employee.account');
     Route::get('/tasks', [ClockController::class, 'Tasks'])->name('employee.tasks');
 
-    // Account Management Routes
+    // Password and profile picture routes
     Route::post('/password/update', [AuthentificationController::class, 'changePassword'])->name('password.update');
     Route::get('/set-profile-picture', [AuthentificationController::class, 'showSetProfilePictureForm'])->name('set.profile.picture');
     Route::post('/set-profile-picture', [AuthentificationController::class, 'storeProfilePicture'])->name('store.profile.picture');
 });
 
-// Admin Routes
+// Admin routes (protected by auth middleware)
 Route::middleware('auth')->group(function () {
     Route::get('/sign', [AdminController::class, 'index'])->name('login');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -69,6 +72,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/requests', [AuthentificationController::class, 'listRequests'])->name('requests');
     Route::post('/requests/{id}/approve', [AuthentificationController::class, 'approveRequest'])->name('requests.approve');
     Route::post('/requests/{id}/deny', [AuthentificationController::class, 'denyRequest'])->name('requests.deny');
+    Route::get('/requests/{id}/download', [AuthentificationController::class, 'downloadCertificate'])->name('request.download');
+    Route::get('/all-requests', [AuthentificationController::class, 'listAllRequests'])->name('all.requests');
     Route::get('/statistics', [AdminController::class, 'Stats'])->name('statistics');
     Route::get('/settingsadmin', [AdminController::class, 'setting'])->name('settings');
     Route::get('/myaccountt', [AuthentificationController::class, 'myAccount'])->name('myaccountt');

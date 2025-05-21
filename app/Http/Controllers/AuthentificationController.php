@@ -29,8 +29,16 @@ class AuthentificationController extends Controller
             'username' => $request->username,
             'password' => $request->password
         ])) {
-            $request->session()->regenerate();
             $user = Auth::user();
+
+            // Check if the user is blocked
+            if ($user->status === 'blocked') {
+                Auth::logout(); // Log the user out immediately
+                return redirect()->route('signin')->with('error', 'Your account has been blocked. Please contact the administrator.');
+            }
+            $request->session()->regenerate();
+
+
             return $user->role === 'admin'
                 ? redirect()->route('admin.tasks')
                 : redirect()->route('Clock_In');
@@ -188,8 +196,16 @@ class AuthentificationController extends Controller
 
     public function listRequests()
     {
-        $requests = Leave_request::with('user')->get();
+        $requests = Leave_request::with('user')
+            ->where('status', 'pending')
+            ->get();
         return view('admin.Requests', compact('requests'));
+    }
+
+    public function listAllRequests()
+    {
+        $requests = Leave_request::with('user')->get();
+        return view('admin.all-requests', compact('requests'));
     }
 
     public function approveRequest(Request $request, $id)
@@ -355,19 +371,62 @@ class AuthentificationController extends Controller
             return redirect()->route('set.expected.hours')->with('success', 'Expected hours updated successfully.');
         }
 
+        // Create a new entry
         ExpectedHours::create($validatedData);
         return redirect()->route('set.expected.hours')->with('success', 'Expected hours set successfully.');
     }
 
-    public function deleteExpectedHours($id)
+    public function downloadCertificate($id)
     {
+        $request = Leave_request::findOrFail($id);
+        if ($request->certificate_path && file_exists(storage_path('app/public/' . $request->certificate_path))) {
+            return response()->download(storage_path('app/public/' . $request->certificate_path));
+        }
+        return redirect()->back()->with('error', 'Certificate not found.');
+    }
+
+
+    //blacklist
+
+    public function blacklist()
+    {
+        $blacklistedUsers = User::where('status', 'blocked')->get();
+        $availableUsers = User::where('status', 'active')->get();
+        return view('admin.blacklist', compact('blacklistedUsers', 'availableUsers'));
+    }
+
+    public function addToBlacklist(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
         try {
-            $expectedHours = ExpectedHours::findOrFail($id);
-            $expectedHours->delete();
-            return redirect()->route('set.expected.hours')->with('success', 'Schedule deleted successfully.');
+            $user = User::findOrFail($request->user_id);
+            if ($user->status === 'active') {
+                $user->update(['status' => 'blocked']);
+                return redirect()->route('blacklist')->with('success', 'User added to blacklist successfully.');
+            }
+            return redirect()->route('blacklist')->with('error', 'User is already blacklisted.');
         } catch (\Exception $e) {
-            Log::error('Failed to delete schedule: ' . $e->getMessage());
-            return redirect()->route('set.expected.hours')->with('error', 'Failed to delete schedule.');
+            Log::error('Failed to add user to blacklist: ' . $e->getMessage());
+            return redirect()->route('blacklist')->with('error', 'Failed to add user to blacklist.');
         }
     }
+
+    public function removeFromBlacklist($userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+            if ($user->status === 'blocked') {
+                $user->update(['status' => 'active']);
+                return redirect()->route('blacklist')->with('success', 'User removed from blacklist successfully.');
+            }
+            return redirect()->route('blacklist')->with('error', 'User is not blacklisted.');
+        } catch (\Exception $e) {
+            Log::error('Failed to remove user from blacklist: ' . $e->getMessage());
+            return redirect()->route('blacklist')->with('error', 'Failed to remove user from blacklist.');
+        }
+    }
+
+
 }
